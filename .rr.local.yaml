@@ -1,0 +1,26 @@
+version: '3'
+
+rpc:
+  listen: 'tcp://127.0.0.1:6001'
+
+http:
+  address: '0.0.0.0:80'
+  middleware: [ "gzip", "headers" ]
+  headers:
+    cors:
+      allowed_origin: "*"
+      allowed_headers: "*"
+      allowed_methods: 'GET, POST, PUT, DELETE'
+      allow_credentials: true
+  pool:
+    debug: true
+    num_workers: 4
+    supervisor:
+      max_worker_memory: 100
+
+status:
+  address: '127.0.0.1:2114'
+
+server:
+  command: 'php app.php'
+  relay: pipes
