@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Infrastructure\Persistence\CycleORM\Repositories;
+
+use App\Domain\Collections\ClubCollection;
+use App\Domain\Criteria\Club\ClubCriteriaInterface;
+use App\Domain\Entities\ClubEntity;
+use App\Domain\Enums\Club\SportTypeEnum;
+use App\Domain\Exceptions\Club\ClubNotFoundException;
+use App\Domain\Repositories\ClubRepositoryInterface;
+use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Club\DomainClubEntityToPersistenceClubEntityMapper;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Club\PersistenceClubEntityToDomainClubEntityMapper;
+use Cycle\ORM\Select\Repository;
+use Cycle\ORM\EntityManagerInterface;
+use Cycle\ORM\Select;
+use Ramsey\Uuid\UuidInterface;
+
+class ClubCycleORMRepository extends Repository implements ClubRepositoryInterface
+{
+    private const array RELATIONS = ['sportTypes'];
+
+    public function __construct(
+        Select $select,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly PersistenceClubEntityToDomainClubEntityMapper $toDomainClubEntityMapper,
+        private readonly DomainClubEntityToPersistenceClubEntityMapper $toPersistenceClubEntityMapper,
+    ) {
+        parent::__construct($select);
+    }
+
+    public function create(ClubEntity $clubEntity): void
+    {
+        $persistenceClubEntity = new ClubCycleORMEntity(
+            id: $clubEntity->getId()->getValue(),
+            externalId: $clubEntity->getExternalId(),
+            name: $clubEntity->getName(),
+            description: $clubEntity->getDescription(),
+            sportTypes: \array_map(static fn(SportTypeEnum $sportType) => new ClubSportTypeCycleORMEntity(
+                clubId: $clubEntity->getId()->getValue(),
+                type: $sportType->name,
+            ), $clubEntity->getSportTypes()),
+        );
+
+        $this->entityManager->persist($this->toPersistenceClubEntityMapper->map(
+            persistenceClubEntity: $persistenceClubEntity,
+            domainClubEntity: $clubEntity,
+        ));
+        $this->entityManager->run();
+    }
+
+    public function update(ClubEntity $clubEntity): void
+    {
+        $this->entityManager->persist($this->toPersistenceClubEntityMapper->map(
+            persistenceClubEntity: $this->get($clubEntity->getId()->getValue()),
+            domainClubEntity: $clubEntity,
+        ));
+        $this->entityManager->run();
+    }
+
+    public function getById(UuidInterface $id): ClubEntity
+    {
+        if (!$persistenceClubEntity = $this->get($id)) {
+            throw new ClubNotFoundException();
+        }
+        return $this->toDomainClubEntityMapper->map($persistenceClubEntity);
+    }
+
+    public function getByCriteria(ClubCriteriaInterface $criteria): ClubCollection
+    {
+        $query = $this->select;
+
+        if ($criteria->externalIds) {
+            $query = $query->andWhere('external_id', 'IN', $criteria->externalIds);
+        }
+
+        return new ClubCollection(\array_map(fn(ClubCycleORMEntity $clubEntity) => $this->toDomainClubEntityMapper->map(
+            persistenceClubEntity: $clubEntity,
+        ), $query->fetchAll()));
+    }
+
+    private function get(UuidInterface $id): ?object
+    {
+        return $this->select()->wherePK($id)->load(self::RELATIONS)->fetchOne();
+    }
+}
