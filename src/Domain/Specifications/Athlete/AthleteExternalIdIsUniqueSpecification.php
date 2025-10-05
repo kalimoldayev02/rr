@@ -13,10 +13,10 @@ final readonly class AthleteExternalIdIsUniqueSpecification
         private AthleteRepositoryInterface $athleteRepository,
     ) {}
 
-    public function isSatisfiedBy(int $externalId): bool
+    public function isSatisfiedBy(string $externalId): bool
     {
         return $this->athleteRepository->getByCriteria(new AthleteQueryCriteria(
             externalIds: [$externalId],
-        ))->count() === 0;
+        ))->isEmpty();
     }
 }

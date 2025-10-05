@@ -6,17 +6,21 @@ namespace App;
 
 use Cycle\Migrations\Migration;
 
-class AthletesMetadataMigration extends Migration
+class CreateClubsAthletesTableMigration extends Migration
 {
-    private const string TABLE_NAME = 'athletes_metadata';
+    private const string TABLE_NAME = 'clubs_athletes';
 
     public function up(): void
     {
         $this->table(self::TABLE_NAME)
+            ->addColumn('club_id', 'uuid')
             ->addColumn('user_id', 'uuid')
-            ->addColumn('external_id', 'string')
-            ->setPrimaryKeys(['user_id'])
-            ->addIndex(['external_id'], ['unique' => true])
+            ->setPrimaryKeys(['club_id', 'user_id'])
+            ->addForeignKey(['club_id'], 'clubs', ['id'], [
+                'cascade' => true,
+                'delete' => 'CASCADE',
+                'update' => 'CASCADE',
+            ])
             ->addForeignKey(['user_id'], 'users', ['id'], [
                 'cascade' => true,
                 'delete' => 'CASCADE',

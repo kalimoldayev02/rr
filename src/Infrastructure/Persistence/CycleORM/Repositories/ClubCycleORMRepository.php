@@ -71,9 +71,9 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
 
     public function getByCriteria(ClubCriteriaInterface $criteria): ClubCollection
     {
-        $query = $this->select;
+        $query = $this->select()->load(self::RELATIONS);
 
-        if ($criteria->externalIds) {
+        if ($criteria->externalIds != null && $criteria->externalIds != []) {
             $query = $query->andWhere('external_id', 'IN', $criteria->externalIds);
         }
 

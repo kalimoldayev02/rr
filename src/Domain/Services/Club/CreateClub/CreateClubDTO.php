@@ -14,7 +14,7 @@ final readonly class CreateClubDTO
      */
     public function __construct(
         public UuidInterface $id,
-        public int $externalId,
+        public string $externalId,
         public string $name,
         public ?string $description,
         public array $sportTypes,

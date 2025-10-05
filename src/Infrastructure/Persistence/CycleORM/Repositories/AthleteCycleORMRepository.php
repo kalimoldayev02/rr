@@ -76,7 +76,7 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
 
     public function getByCriteria(AthleteCriteriaInterface $criteria): AthleteCollection
     {
-        $query = $this->select;
+        $query = $this->select();
 
         if ($criteria->externalIds && $criteria->externalIds != []) {
             $query = $query->with(self::RELATIONS)

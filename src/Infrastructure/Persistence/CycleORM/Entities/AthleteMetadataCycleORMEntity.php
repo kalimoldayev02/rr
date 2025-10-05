@@ -16,8 +16,8 @@ class AthleteMetadataCycleORMEntity
     public function __construct(
         #[Column(type: 'uuid', name: 'user_id', primary: true)]
         private UuidInterface $userId,
-        #[Column(type: 'integer', name: 'external_id')]
-        private int $externalId,
+        #[Column(type: 'string', name: 'external_id')]
+        private string $externalId,
     ) {}
 
     public function getUserId(): UuidInterface
@@ -30,12 +30,12 @@ class AthleteMetadataCycleORMEntity
         $this->userId = $userId;
     }
 
-    public function getExternalId(): int
+    public function getExternalId(): string
     {
         return $this->externalId;
     }
 
-    public function setExternalId(int $externalId): void
+    public function setExternalId(string $externalId): void
     {
         $this->externalId = $externalId;
     }

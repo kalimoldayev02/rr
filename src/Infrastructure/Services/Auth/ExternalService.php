@@ -57,7 +57,7 @@ final readonly class ExternalService implements ExternalServiceInterface
         $this->logger->info('Exchange code', ['data' => $response]);
 
         return new AthleteExternalDataDTO(
-            externalId: $response->athlete->id,
+            externalId: (string) $response->athlete->id,
             gender: match ($response->athlete->sex) {
                 'M' => UserGenderEnum::male,
                 'F' => UserGenderEnum::female,
@@ -78,7 +78,7 @@ final readonly class ExternalService implements ExternalServiceInterface
             $responseData = $this->stravaProvider->withToken($accessToken)->get(path: 'athlete/clubs');
 
             return \array_map(fn(object $club) => new ClubExternalDataDTO(
-                externalId: $club->id,
+                externalId: (string) $club->id,
                 name: $club->name,
                 description: $club->description ?? null,
                 sportTypes: \array_map(fn(string $sportType) => $this->mapSportType(

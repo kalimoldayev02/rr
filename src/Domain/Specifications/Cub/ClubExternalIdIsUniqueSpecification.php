@@ -13,10 +13,10 @@ final readonly class ClubExternalIdIsUniqueSpecification
         private ClubRepositoryInterface $clubRepository,
     ) {}
 
-    public function isSatisfiedBy(int $externalId): bool
+    public function isSatisfiedBy(string $externalId): bool
     {
         return $this->clubRepository->getByCriteria(new ClubQueryCriteria(
             externalIds: [$externalId],
-        ))->count() === 0;
+        ))->isEmpty();
     }
 }

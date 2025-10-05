@@ -66,8 +66,8 @@ final readonly class RegisterAthleteCommandHandler
         $clubsExternalData = $this->externalService->getClubsByToken($registerAthlete->accessToken);
         $clubsExternalIds = [];
         foreach ($clubsExternalData as $clubExternalData) {
+            $clubsExternalIds[] = $clubExternalData->externalId;
             try {
-                $clubsExternalIds[] = $clubExternalData->externalId;
                 $this->createClubService->create(new CreateClubDTO(
                     id: new IdVO()->getValue(),
                     externalId: $clubExternalData->externalId,
@@ -76,6 +76,7 @@ final readonly class RegisterAthleteCommandHandler
                     sportTypes: $clubExternalData->sportTypes,
                 ));
             } catch (ClubExistsException) {
+                continue;
             }
         }
 

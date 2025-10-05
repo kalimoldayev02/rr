@@ -15,7 +15,7 @@ final class ClubEntity
      */
     public function __construct(
         private readonly IdVO $id,
-        private readonly int $externalId,
+        private readonly string $externalId,
         private string $name,
         private ?string $description = null,
         private array $sportTypes,
@@ -27,7 +27,7 @@ final class ClubEntity
         return $this->id;
     }
 
-    public function getExternalId(): int
+    public function getExternalId(): string
     {
         return $this->externalId;
     }
@@ -45,6 +45,11 @@ final class ClubEntity
     public function getSportTypes(): array
     {
         return $this->sportTypes;
+    }
+
+    public function getAthletes(): AthleteCollection
+    {
+        return $this->athletes;
     }
 
     public function addAthlete(AthleteEntity $athleteEntity): void

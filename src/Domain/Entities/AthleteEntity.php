@@ -11,7 +11,7 @@ final class AthleteEntity
 {
     public function __construct(
         private readonly IdVO $id,
-        private readonly int $externalId,
+        private readonly string $externalId,
         private string $firstname,
         private string $lastname,
         private UserGenderEnum $gender,
@@ -23,7 +23,7 @@ final class AthleteEntity
         return $this->id;
     }
 
-    public function getExternalId(): int
+    public function getExternalId(): string
     {
         return $this->externalId;
     }
