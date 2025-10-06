@@ -14,7 +14,9 @@ use App\Domain\Repositories\AuthStateRepositoryInterface;
 use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteDTO;
 use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteService;
 use App\Domain\Services\ExternalServiceInterface;
+use App\Domain\Specifications\Athlete\AthleteEmailIsUniqueSpecification;
 use App\Domain\Specifications\Auth\AuthStateIsValidSpecification;
+use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\IdVO;
 
 final readonly class RegisterAthleteService
@@ -22,36 +24,43 @@ final readonly class RegisterAthleteService
     public function __construct(
         private ExternalServiceInterface $externalService,
         private AuthStateIsValidSpecification $stateIsValidSpecification,
+        private AthleteEmailIsUniqueSpecification $athleteEmailIsUniqueSpecification,
         private AuthStateRepositoryInterface  $authStateRepository,
         private AthleteRepositoryInterface $athleteRepository,
         private CreateAthleteService $createAthleteService,
     ) {}
 
-    public function register(string $code, string $state): RegisterAthleteDataDTO
+    public function register(RegisterAthleteInputDTO $registerAthlete): RegisterAthleteOutputDTO
     {
-        if (!$this->stateIsValidSpecification->isSatisfiedBy($state)) {
+        if (!$this->athleteEmailIsUniqueSpecification->isSatisfiedBy(new EmailVO($registerAthlete->email))) {
+            throw new AthleteExistsException();
+        }
+        if (!$this->stateIsValidSpecification->isSatisfiedBy($registerAthlete->state)) {
             throw new AuthStateNotValidException();
         }
-        $this->authStateRepository->delete($state);
-        $externalData = $this->externalService->exchangeCode($code);
+        $this->authStateRepository->delete($registerAthlete->state);
+        $externalData = $this->externalService->exchangeCode($registerAthlete->code);
 
-        return new RegisterAthleteDataDTO(
-            athlete: $this->persistAthlete($externalData),
+        dump($externalData);
+        return new RegisterAthleteOutputDTO(
+            athlete: $this->persistAthlete($externalData, $registerAthlete),
             accessToken: $externalData->accessToken,
             refreshToken: $externalData->refreshToken,
         );
     }
 
-    private function persistAthlete(AthleteExternalDataDTO $athleteExternalData): AthleteEntity
+    private function persistAthlete(AthleteExternalDataDTO $athleteExternalData, RegisterAthleteInputDTO $registerAthlete): AthleteEntity
     {
         try {
             $athleteId = new IdVO();
             $this->createAthleteService->create(new CreateAthleteDTO(
                 id: $athleteId->getValue(),
+                email: $registerAthlete->email,
                 externalId: $athleteExternalData->externalId,
                 firstname: $athleteExternalData->firstname,
                 lastname: $athleteExternalData->lastname,
                 gender: $athleteExternalData->gender,
+                password: $registerAthlete->password,
             ));
         } catch (AthleteExistsException) {
         }

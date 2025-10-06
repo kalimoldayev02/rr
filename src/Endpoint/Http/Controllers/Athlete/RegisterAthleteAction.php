@@ -36,6 +36,8 @@ final readonly class RegisterAthleteAction
             $registerData = $handler->handle(new RegisterAthleteCommand(
                 code: $request->getCode(),
                 state: $request->getState(),
+                email: $request->getEmail(),
+                password: $request->getPassword(),
             ));
         } catch (AuthStateNotValidException) {
             throw new AuthStateNotValidHttpException();

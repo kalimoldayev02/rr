@@ -18,7 +18,9 @@ class CreateUsersTableMigration extends Migration
             ->addColumn('lastname', 'string')
             ->addColumn('gender', 'string', ['nullable' => true, 'default' => null])
             ->addColumn('birthday', 'date', ['nullable' => true, 'default' => null])
-            ->addColumn('email', 'string', ['nullable' => true, 'default' => null, 'unique' => true])
+            ->addColumn('email', 'string', ['nullable' => true, 'default' => null])
+            ->addColumn('password', 'string')
+            ->addIndex(['email'], ['unique' => true])
             ->setPrimaryKeys(['id'])
             ->create();
     }

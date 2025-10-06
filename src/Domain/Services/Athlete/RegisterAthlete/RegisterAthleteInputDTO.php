@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Application\UseCases\Command\Athlete\RegisterAthlete;
+namespace App\Domain\Services\Athlete\RegisterAthlete;
 
-final readonly class RegisterAthleteCommand
+final readonly class RegisterAthleteInputDTO
 {
     public function __construct(
-        public string $code,
         public string $state,
+        public string $code,
         public string $email,
         public string $password,
     ) {}

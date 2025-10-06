@@ -73,7 +73,7 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
     {
         $query = $this->select()->load(self::RELATIONS);
 
-        if ($criteria->externalIds != null && $criteria->externalIds != []) {
+        if (is_array($criteria->externalIds) && count($criteria->externalIds)) {
             $query = $query->andWhere('external_id', 'IN', $criteria->externalIds);
         }
 

@@ -6,7 +6,7 @@ namespace App\Domain\Services\Athlete\RegisterAthlete;
 
 use App\Domain\Entities\AthleteEntity;
 
-final readonly class RegisterAthleteDataDTO
+final readonly class RegisterAthleteOutputDTO
 {
     public function __construct(
         public AthleteEntity $athlete,

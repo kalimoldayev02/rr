@@ -9,6 +9,7 @@ use App\Domain\Criteria\Athlete\AthleteCriteriaInterface;
 use App\Domain\Entities\AthleteEntity;
 use App\Domain\Exceptions\Athlete\AthleteNotFoundException;
 use App\Domain\Repositories\AthleteRepositoryInterface;
+use App\Domain\ValueObjects\EmailVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\DomainAthleteEntityToPersistenceAthleteEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\PersistenceAthleteEntityToDomainAthleteEntityMapper;
@@ -34,11 +35,13 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
     {
         $persistenceAthleteEntity = new AthleteCycleORMEntity(
             id: $athleteEntity->getId()->getValue(),
+            email: $athleteEntity->getEmail()->getValue(),
             metadata: null,
             firstname: $athleteEntity->getFirstName(),
             lastname: $athleteEntity->getLastName(),
             gender: $athleteEntity->getGender()->name,
             birthday: $athleteEntity->getBirthday(),
+            password: $athleteEntity->getPassword(),
         );
 
         $this->entityManager->persist($this->toPersistenceAthleteEntityMapper->map(
@@ -76,11 +79,13 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
 
     public function getByCriteria(AthleteCriteriaInterface $criteria): AthleteCollection
     {
-        $query = $this->select();
+        $query = $this->select()->load(self::RELATIONS);
 
-        if ($criteria->externalIds && $criteria->externalIds != []) {
-            $query = $query->with(self::RELATIONS)
-                ->where('metadata.external_id', 'IN', $criteria->externalIds);
+        if (is_array($criteria->externalIds) && count($criteria->externalIds) > 0) {
+            $query = $query->andWhere('metadata.external_id', 'IN', $criteria->externalIds);
+        }
+        if (is_array($criteria->emails) && count($criteria->emails) > 0) {
+            $query = $query->andWhere('email', 'IN', array_map(fn(EmailVO $email) => $email->getValue(), $criteria->emails));
         }
 
         return new AthleteCollection(\array_map(fn(AthleteCycleORMEntity $athleteEntity) => $this->toDomainAthleteEntityMapper->map(

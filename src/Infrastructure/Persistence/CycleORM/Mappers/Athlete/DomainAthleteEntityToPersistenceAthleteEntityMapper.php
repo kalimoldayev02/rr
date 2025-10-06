@@ -13,10 +13,12 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
     public function map(AthleteCycleORMEntity $persistenceAthleteEntity, AthleteEntity $domainAthleteEntity): AthleteCycleORMEntity
     {
         $persistenceAthleteEntity->setId($domainAthleteEntity->getId()->getValue());
+        $persistenceAthleteEntity->setEmail($domainAthleteEntity->getEmail()->getValue());
         $persistenceAthleteEntity->setFirstName($domainAthleteEntity->getFirstName());
         $persistenceAthleteEntity->setLastName($domainAthleteEntity->getLastName());
         $persistenceAthleteEntity->setGender($domainAthleteEntity->getGender()->name);
         $persistenceAthleteEntity->setBirthday($domainAthleteEntity->getBirthday());
+        $persistenceAthleteEntity->setPassword($domainAthleteEntity->getPassword());
         $persistenceAthleteEntity->setMetadata(new AthleteMetadataCycleORMEntity(
             userId: $domainAthleteEntity->getId()->getValue(),
             externalId: $domainAthleteEntity->getExternalId(),

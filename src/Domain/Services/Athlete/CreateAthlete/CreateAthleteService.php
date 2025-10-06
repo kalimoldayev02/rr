@@ -8,6 +8,7 @@ use App\Domain\Entities\AthleteEntity;
 use App\Domain\Exceptions\Athlete\AthleteExistsException;
 use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\Specifications\Athlete\AthleteExternalIdIsUniqueSpecification;
+use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\IdVO;
 
 final readonly class CreateAthleteService
@@ -25,10 +26,12 @@ final readonly class CreateAthleteService
 
         $this->athleteRepository->create(new AthleteEntity(
             id: new IdVO($athlete->id),
+            email: new EmailVO($athlete->email),
             externalId: $athlete->externalId,
             firstname: $athlete->firstname,
             lastname: $athlete->lastname,
             gender: $athlete->gender,
+            password: $athlete->password,
         ));
     }
 }

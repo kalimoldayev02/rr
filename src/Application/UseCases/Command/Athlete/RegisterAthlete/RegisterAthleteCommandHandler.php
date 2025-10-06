@@ -11,7 +11,8 @@ use App\Domain\Entities\ClubEntity;
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
 use App\Domain\Exceptions\Club\ClubExistsException;
 use App\Domain\Repositories\ClubRepositoryInterface;
-use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteDataDTO;
+use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteInputDTO;
+use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteOutputDTO;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteService;
 use App\Domain\Services\Club\CreateClub\CreateClubDTO;
 use App\Domain\Services\Club\CreateClub\CreateClubService;
@@ -35,10 +36,12 @@ final readonly class RegisterAthleteCommandHandler
     public function handle(RegisterAthleteCommand $command): RegisterAthleteDTO
     {
         try {
-            $registerAthleteData = $this->registerAthleteService->register(
-                code: $command->code,
+            $registerAthleteData = $this->registerAthleteService->register(new RegisterAthleteInputDTO(
                 state: $command->state,
-            );
+                code: $command->code,
+                email: $command->email,
+                password: $command->password,
+            ));
 
             /** @var ClubEntity $clubEntity */
             foreach ($this->getClubs($registerAthleteData) as $clubEntity) {
@@ -61,7 +64,7 @@ final readonly class RegisterAthleteCommandHandler
         );
     }
 
-    private function getClubs(RegisterAthleteDataDTO $registerAthlete): ClubCollection
+    private function getClubs(RegisterAthleteOutputDTO $registerAthlete): ClubCollection
     {
         $clubsExternalData = $this->externalService->getClubsByToken($registerAthlete->accessToken);
         $clubsExternalIds = [];

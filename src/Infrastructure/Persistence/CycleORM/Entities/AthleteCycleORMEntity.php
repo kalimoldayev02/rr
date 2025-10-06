@@ -18,7 +18,9 @@ class AthleteCycleORMEntity
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         private UuidInterface $id,
-        #[HasOne(target: AthleteMetadataCycleORMEntity::class, cascade: true, outerKey: 'user_id')]
+        #[Column(type: 'string')]
+        private string $email,
+        #[HasOne(target: AthleteMetadataCycleORMEntity::class, outerKey: 'user_id', cascade: true)]
         private ?AthleteMetadataCycleORMEntity $metadata = null,
         #[Column(type: 'string')]
         private string $firstname,
@@ -28,6 +30,8 @@ class AthleteCycleORMEntity
         private string $gender,
         #[Column(type: 'datetime', nullable: true)]
         private ?\DateTimeImmutable $birthday,
+        #[Column(type: 'string')]
+        private string $password,
     ) {}
 
     public function getId(): UuidInterface
@@ -38,6 +42,16 @@ class AthleteCycleORMEntity
     public function setId(UuidInterface $id): void
     {
         $this->id = $id;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
     }
 
     public function getMetadata(): ?AthleteMetadataCycleORMEntity
@@ -88,5 +102,15 @@ class AthleteCycleORMEntity
     public function setBirthday(?\DateTimeImmutable $birthday): void
     {
         $this->birthday = $birthday;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 }

@@ -42,10 +42,14 @@ final readonly class DomainClubEntityToPersistenceClubEntityMapper
         foreach ($domainClubEntity->getAthletes() as $domainAthleteEntity) {
             $athleteIds[] = $domainAthleteEntity->getId()->getValue()->toString();
         }
-        return $this->orm->getRepository(AthleteCycleORMEntity::class)
-            ->select()
-            ->where('id', 'IN', $athleteIds)
-            ->fetchAll();
+
+        if ($athleteIds) {
+            return $this->orm->getRepository(AthleteCycleORMEntity::class)
+                ->select()
+                ->andWhere('id', 'IN', $athleteIds)
+                ->fetchAll();
+        }
+        return [];
     }
 
     private function mapDomainClubSportTypesToPersistenceClubSportTypes(ClubCycleORMEntity $persistenceClubEntity, ClubEntity $domainClubEntity): array

@@ -5,22 +5,35 @@ declare(strict_types=1);
 namespace App\Domain\Entities;
 
 use App\Domain\Enums\User\UserGenderEnum;
+use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\IdVO;
 
 final class AthleteEntity
 {
     public function __construct(
         private readonly IdVO $id,
+        private EmailVO $email,
         private readonly string $externalId,
         private string $firstname,
         private string $lastname,
         private UserGenderEnum $gender,
+        private string $password,
         private ?\DateTimeImmutable $birthday = null,
     ) {}
 
     public function getId(): IdVO
     {
         return $this->id;
+    }
+
+    public function getEmail(): EmailVO
+    {
+        return $this->email;
+    }
+
+    public function setEmail(EmailVO $email): void
+    {
+        $this->email = $email;
     }
 
     public function getExternalId(): string
@@ -66,5 +79,15 @@ final class AthleteEntity
     public function setBirthday(?\DateTimeImmutable $birthday): void
     {
         $this->birthday = $birthday;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 }

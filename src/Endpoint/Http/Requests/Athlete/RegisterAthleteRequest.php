@@ -14,18 +14,31 @@ use Spiral\Validation\Laravel\FilterDefinition;
 #[OA\Schema]
 final class RegisterAthleteRequest extends Filter implements HasFilterDefinition
 {
+    private const int COST = 12;
+
     #[Post]
     #[OA\Property]
     private readonly string $state;
+
     #[Post]
     #[OA\Property]
     private readonly string $code;
+
+    #[Post]
+    #[OA\Property]
+    private readonly string $email;
+
+    #[Post]
+    #[OA\Property]
+    private readonly string $password;
 
     public function filterDefinition(): FilterDefinitionInterface
     {
         return new FilterDefinition([
             'code' => ['required', 'string'],
             'state' => ['required', 'string'],
+            'email' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6'],
         ]);
     }
 
@@ -37,5 +50,15 @@ final class RegisterAthleteRequest extends Filter implements HasFilterDefinition
     public function getCode(): string
     {
         return $this->code;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function getPassword(): string
+    {
+        return \password_hash($this->password, PASSWORD_BCRYPT, ['cost' => self::COST]);
     }
 }
