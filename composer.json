@@ -13,6 +13,7 @@
         "ext-mbstring": "*",
         "ext-sockets": "*",
         "cycle/entity-behavior-uuid": "^1.2",
+        "firebase/php-jwt": "^6.11",
         "predis/predis": "^3.2",
         "ramsey/collection": "^2.1",
         "ramsey/uuid": "^4.9",

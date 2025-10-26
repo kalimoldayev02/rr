@@ -27,7 +27,7 @@ final readonly class CreateClubService
         }
 
         $this->clubRepository->create(new ClubEntity(
-            id: new IdVO($club->id),
+            id: new IdVO($club->id)->getValue(),
             externalId: $club->externalId,
             name: $club->name,
             description: $club->description,

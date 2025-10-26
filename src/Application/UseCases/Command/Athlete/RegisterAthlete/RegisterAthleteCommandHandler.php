@@ -70,7 +70,7 @@ final readonly class RegisterAthleteCommandHandler
 
     private function getClubs(RegisterAthleteOutputDTO $registerAthlete): ClubCollection
     {
-        $clubsExternalData = $this->externalService->getClubsByToken($registerAthlete->accessToken);
+        $clubsExternalData = $this->externalService->getClubsByToken($registerAthlete->oAuthToken);
         $clubsExternalIds = [];
         foreach ($clubsExternalData as $clubExternalData) {
             $clubsExternalIds[] = $clubExternalData->externalId;

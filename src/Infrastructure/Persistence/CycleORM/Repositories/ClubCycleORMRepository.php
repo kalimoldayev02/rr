@@ -35,12 +35,12 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
     public function create(ClubEntity $clubEntity): void
     {
         $persistenceClubEntity = new ClubCycleORMEntity(
-            id: $clubEntity->getId()->getValue(),
+            id: $clubEntity->getId(),
             externalId: $clubEntity->getExternalId(),
             name: $clubEntity->getName(),
             description: $clubEntity->getDescription(),
             sportTypes: \array_map(static fn(SportTypeEnum $sportType) => new ClubSportTypeCycleORMEntity(
-                clubId: $clubEntity->getId()->getValue(),
+                clubId: $clubEntity->getId(),
                 type: $sportType->name,
             ), $clubEntity->getSportTypes()),
         );
@@ -55,7 +55,7 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
     public function update(ClubEntity $clubEntity): void
     {
         $this->entityManager->persist($this->toPersistenceClubEntityMapper->map(
-            persistenceClubEntity: $this->get($clubEntity->getId()->getValue()),
+            persistenceClubEntity: $this->get($clubEntity->getId()),
             domainClubEntity: $clubEntity,
         ));
         $this->entityManager->run();

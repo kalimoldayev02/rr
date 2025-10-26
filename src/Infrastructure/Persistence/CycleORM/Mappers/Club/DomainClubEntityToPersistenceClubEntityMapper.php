@@ -12,7 +12,7 @@ final readonly class DomainClubEntityToPersistenceClubEntityMapper
 {
     public function map(ClubCycleORMEntity $persistenceClubEntity, ClubEntity $domainClubEntity): ClubCycleORMEntity
     {
-        $persistenceClubEntity->setId($domainClubEntity->getId()->getValue());
+        $persistenceClubEntity->setId($domainClubEntity->getId());
         $persistenceClubEntity->setName($domainClubEntity->getName());
         $persistenceClubEntity->setDescription($domainClubEntity->getDescription());
         $persistenceClubEntity->setExternalId($domainClubEntity->getExternalId());
@@ -38,7 +38,7 @@ final readonly class DomainClubEntityToPersistenceClubEntityMapper
                 $result[] = $currentClubSportType;
             } else {
                 $result[] = new ClubSportTypeCycleORMEntity(
-                    clubId: $domainClubEntity->getId()->getValue(),
+                    clubId: $domainClubEntity->getId(),
                     type: $sportType->name,
                 );
             }

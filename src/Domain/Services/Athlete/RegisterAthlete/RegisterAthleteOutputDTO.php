@@ -12,5 +12,6 @@ final readonly class RegisterAthleteOutputDTO
         public AthleteEntity $athleteEntity,
         public string $accessToken,
         public string $refreshToken,
+        public string $oAuthToken,
     ) {}
 }

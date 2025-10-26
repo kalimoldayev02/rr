@@ -20,10 +20,9 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
         $persistenceAthleteEntity->setGender($domainAthleteEntity->getGender()->name);
         $persistenceAthleteEntity->setBirthday($domainAthleteEntity->getBirthday());
         $persistenceAthleteEntity->setPassword($domainAthleteEntity->getPassword());
-        $persistenceAthleteEntity->setMetadata(new AthleteMetadataCycleORMEntity(
-            userId: $domainAthleteEntity->getId(),
-            externalId: $domainAthleteEntity->getExternalId(),
-        ));
+        $persistenceAthleteEntity->setMetadata(
+            $this->collectMetadata($persistenceAthleteEntity, $domainAthleteEntity),
+        );
         $persistenceAthleteEntity->setClubAthletes(
             $this->collectClubAthletes($persistenceAthleteEntity, $domainAthleteEntity),
         );
@@ -56,5 +55,18 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
         }
 
         return $clubAthletesToPersist;
+    }
+
+    private function collectMetadata(AthleteCycleORMEntity $persistenceAthleteEntity, AthleteEntity $domainAthleteEntity): ?AthleteMetadataCycleORMEntity
+    {
+        if ($metaData = $persistenceAthleteEntity->getMetadata()) {
+            $metaData->setExternalId($domainAthleteEntity->getExternalId());
+        } else {
+            $metaData = new AthleteMetadataCycleORMEntity(
+                userId: $domainAthleteEntity->getId(),
+                externalId: $domainAthleteEntity->getExternalId(),
+            );
+        }
+        return $metaData;
     }
 }

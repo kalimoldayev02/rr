@@ -6,6 +6,7 @@ namespace App\Domain\Entities;
 
 use App\Domain\Enums\Club\SportTypeEnum;
 use App\Domain\ValueObjects\IdVO;
+use Ramsey\Uuid\UuidInterface;
 
 final class ClubEntity
 {
@@ -13,14 +14,14 @@ final class ClubEntity
      * @param SportTypeEnum[] $sportTypes
      */
     public function __construct(
-        private readonly IdVO $id,
+        private readonly UuidInterface $id,
         private readonly string $externalId,
         private string $name,
         private ?string $description = null,
         private array $sportTypes,
     ) {}
 
-    public function getId(): IdVO
+    public function getId(): UuidInterface
     {
         return $this->id;
     }

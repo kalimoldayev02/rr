@@ -6,7 +6,6 @@ namespace App\Infrastructure\Persistence\CycleORM\Mappers\Club;
 
 use App\Domain\Entities\ClubEntity;
 use App\Domain\Enums\Club\SportTypeEnum;
-use App\Domain\ValueObjects\IdVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
 
@@ -15,7 +14,7 @@ final readonly class PersistenceClubEntityToDomainClubEntityMapper
     public function map(ClubCycleORMEntity $persistenceClubEntity): ClubEntity
     {
         return new ClubEntity(
-            id: new IdVO($persistenceClubEntity->getId()),
+            id: $persistenceClubEntity->getId(),
             externalId: $persistenceClubEntity->getExternalId(),
             name: $persistenceClubEntity->getName(),
             description: $persistenceClubEntity->getDescription(),

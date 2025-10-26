@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Framework\Bootloaders;
 
+use App\Domain\Services\Auth\JwtServiceInterface;
 use App\Domain\Services\ExternalServiceInterface;
 use App\Infrastructure\Providers\ServiceConfigurator;
 use App\Infrastructure\Providers\ServiceConfiguratorInterface;
 use App\Infrastructure\Services\Auth\ExternalService;
+use App\Infrastructure\Services\Jwt\JwtService;
 use Predis\Client;
 use Predis\ClientInterface;
 use Spiral\Boot\Bootloader\Bootloader;
@@ -23,6 +25,7 @@ final class ServicesBootloader extends Bootloader
             ExternalServiceInterface::class => ExternalService::class,
             ServiceConfiguratorInterface::class => ServiceConfigurator::class,
             HttpClientInterface::class => static fn(): HttpClientInterface => HttpClient::create(),
+            JwtServiceInterface::class => JwtService::class,
         ];
     }
 
@@ -40,10 +43,6 @@ final class ServicesBootloader extends Bootloader
                     'database' => $connectionConfig['database'] ?? 0,
                     'password' => $connectionConfig['password'] ?? null,
                 ], $connectionConfig['options'] ?? []);
-            },
-
-            Client::class => static function (ClientInterface $client): Client {
-                return $client;
             },
         ];
     }
