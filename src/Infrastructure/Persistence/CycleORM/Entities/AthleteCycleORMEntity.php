@@ -7,6 +7,7 @@ namespace App\Infrastructure\Persistence\CycleORM\Entities;
 use App\Infrastructure\Persistence\CycleORM\Repositories\AthleteCycleORMRepository;
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
+use Cycle\Annotated\Annotation\Relation\HasMany;
 use Cycle\Annotated\Annotation\Relation\HasOne;
 use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
@@ -15,6 +16,15 @@ use Ramsey\Uuid\UuidInterface;
 #[Uuid7(field: 'id', nullable: false)]
 class AthleteCycleORMEntity
 {
+    #[HasMany(
+        target: ClubAthleteCycleORMEntity::class,
+        innerKey: 'id',
+        outerKey: 'user_id',
+        fkOnDelete: 'CASCADE',
+        load: 'eager',
+    )]
+    private array $clubAthletes = [];
+
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         private UuidInterface $id,
@@ -112,5 +122,18 @@ class AthleteCycleORMEntity
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    /**
+     * @return ClubAthleteCycleORMEntity[]
+     */
+    public function getClubAthletes(): array
+    {
+        return $this->clubAthletes;
+    }
+
+    public function setClubAthletes(array $clubAthletes): void
+    {
+        $this->clubAthletes = $clubAthletes;
     }
 }

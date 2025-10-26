@@ -66,6 +66,7 @@ final readonly class ExternalService implements ExternalServiceInterface
             lastname: $response->athlete->lastname,
             accessToken: $response->access_token,
             refreshToken: $response->refresh_token,
+            expiresAt: $response->expires_at,
         );
     }
 

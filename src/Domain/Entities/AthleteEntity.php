@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Entities;
 
+use App\Domain\Collections\ClubIdCollection;
 use App\Domain\Enums\User\UserGenderEnum;
 use App\Domain\ValueObjects\EmailVO;
-use App\Domain\ValueObjects\IdVO;
+use Ramsey\Uuid\UuidInterface;
 
 final class AthleteEntity
 {
+    private ClubIdCollection $clubIds;
+
     public function __construct(
-        private readonly IdVO $id,
+        private readonly UuidInterface $id,
         private EmailVO $email,
         private readonly string $externalId,
         private string $firstname,
@@ -19,9 +22,11 @@ final class AthleteEntity
         private UserGenderEnum $gender,
         private string $password,
         private ?\DateTimeImmutable $birthday = null,
-    ) {}
+    ) {
+        $this->clubIds = new ClubIdCollection();
+    }
 
-    public function getId(): IdVO
+    public function getId(): UuidInterface
     {
         return $this->id;
     }
@@ -89,5 +94,15 @@ final class AthleteEntity
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    public function getClubIds(): ClubIdCollection
+    {
+        return $this->clubIds;
+    }
+
+    public function setClubIds(ClubIdCollection $clubIds): void
+    {
+        $this->clubIds = $clubIds;
     }
 }

@@ -4,21 +4,14 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\CycleORM\Mappers\Club;
 
-use App\Domain\Collections\AthleteCollection;
 use App\Domain\Entities\ClubEntity;
 use App\Domain\Enums\Club\SportTypeEnum;
 use App\Domain\ValueObjects\IdVO;
-use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
-use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\PersistenceAthleteEntityToDomainAthleteEntityMapper;
 
 final readonly class PersistenceClubEntityToDomainClubEntityMapper
 {
-    public function __construct(
-        private PersistenceAthleteEntityToDomainAthleteEntityMapper $toDomainAthleteEntityMapper,
-    ) {}
-
     public function map(ClubCycleORMEntity $persistenceClubEntity): ClubEntity
     {
         return new ClubEntity(
@@ -27,7 +20,6 @@ final readonly class PersistenceClubEntityToDomainClubEntityMapper
             name: $persistenceClubEntity->getName(),
             description: $persistenceClubEntity->getDescription(),
             sportTypes: $this->mapSportTypes($persistenceClubEntity->getSportTypes()),
-            athletes: $this->mapPersistenceAthletesToDomainAthletes($persistenceClubEntity->getAthletes()),
         );
     }
 
@@ -89,13 +81,5 @@ final readonly class PersistenceClubEntityToDomainClubEntityMapper
             'yoga' => SportTypeEnum::yoga,
             default => throw new \InvalidArgumentException("Unknown sport type: {$sportType}"),
         }, $sportTypes);
-    }
-
-    private function mapPersistenceAthletesToDomainAthletes(array $persistenceAthleteEntities): AthleteCollection
-    {
-        return new AthleteCollection(\array_map(
-            fn(AthleteCycleORMEntity $athleteEntity) => $this->toDomainAthleteEntityMapper->map($athleteEntity),
-            $persistenceAthleteEntities,
-        ));
     }
 }

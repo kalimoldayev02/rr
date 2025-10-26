@@ -41,9 +41,13 @@ final readonly class RegisterAthleteService
         $this->authStateRepository->delete($registerAthlete->state);
         $externalData = $this->externalService->exchangeCode($registerAthlete->code);
 
-        dump($externalData);
+        $athleteEntity = $this->persistAthlete($externalData, $registerAthlete);
+
+        // Create token
+        // TODO
+
         return new RegisterAthleteOutputDTO(
-            athlete: $this->persistAthlete($externalData, $registerAthlete),
+            athleteEntity: $athleteEntity,
             accessToken: $externalData->accessToken,
             refreshToken: $externalData->refreshToken,
         );

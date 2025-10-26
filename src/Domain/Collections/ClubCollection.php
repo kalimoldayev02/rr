@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Collections;
 
-use Ramsey\Collection\AbstractCollection;
-
-final class ClubCollection extends AbstractCollection
+final class ClubCollection extends AbstractPaginatedCollection
 {
     public function getType(): string
     {

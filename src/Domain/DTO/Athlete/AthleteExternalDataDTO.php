@@ -15,5 +15,6 @@ final readonly class AthleteExternalDataDTO
         public string $lastname,
         public string $accessToken,
         public string $refreshToken,
+        public int $expiresAt,
     ) {}
 }

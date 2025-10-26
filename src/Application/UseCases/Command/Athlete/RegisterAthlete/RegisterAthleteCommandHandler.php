@@ -10,6 +10,7 @@ use App\Domain\Criteria\Club\ClubQueryCriteria;
 use App\Domain\Entities\ClubEntity;
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
 use App\Domain\Exceptions\Club\ClubExistsException;
+use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\Repositories\ClubRepositoryInterface;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteInputDTO;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteOutputDTO;
@@ -28,6 +29,7 @@ final readonly class RegisterAthleteCommandHandler
         private RegisterAthleteService $registerAthleteService,
         private ExternalServiceInterface $externalService,
         private CreateClubService $createClubService,
+        private AthleteRepositoryInterface $athleteRepository,
     ) {}
 
     /**
@@ -43,12 +45,14 @@ final readonly class RegisterAthleteCommandHandler
                 password: $command->password,
             ));
 
+            $athleteEntity = $registerAthleteData->athleteEntity;
+
             /** @var ClubEntity $clubEntity */
             foreach ($this->getClubs($registerAthleteData) as $clubEntity) {
-                $clubEntity->addAthlete($registerAthleteData->athlete);
-
-                $this->clubRepository->update($clubEntity);
+                $athleteEntity->getClubIds()->add($clubEntity->getId());
             }
+
+            $this->athleteRepository->update($athleteEntity);
         } catch (AuthStateNotValidException $exception) {
             throw $exception;
         } catch (\Exception $exception) {

@@ -9,7 +9,7 @@ use App\Domain\Entities\AthleteEntity;
 final readonly class RegisterAthleteOutputDTO
 {
     public function __construct(
-        public AthleteEntity $athlete,
+        public AthleteEntity $athleteEntity,
         public string $accessToken,
         public string $refreshToken,
     ) {}

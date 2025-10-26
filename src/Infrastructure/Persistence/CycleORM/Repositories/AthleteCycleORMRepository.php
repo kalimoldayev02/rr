@@ -34,7 +34,7 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
     public function create(AthleteEntity $athleteEntity): void
     {
         $persistenceAthleteEntity = new AthleteCycleORMEntity(
-            id: $athleteEntity->getId()->getValue(),
+            id: $athleteEntity->getId(),
             email: $athleteEntity->getEmail()->getValue(),
             metadata: null,
             firstname: $athleteEntity->getFirstName(),
@@ -54,7 +54,7 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
     public function update(AthleteEntity $athleteEntity): void
     {
         $this->entityManager->persist($this->toPersistenceAthleteEntityMapper->map(
-            persistenceAthleteEntity: $this->get($athleteEntity->getId()->getValue()),
+            persistenceAthleteEntity: $this->get($athleteEntity->getId()),
             domainAthleteEntity: $athleteEntity,
         ));
         $this->entityManager->run();
@@ -62,10 +62,7 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
 
     public function delete(AthleteEntity $athleteEntity): void
     {
-        $this->entityManager->delete($this->toPersistenceAthleteEntityMapper->map(
-            persistenceAthleteEntity: $this->get($athleteEntity->getId()->getValue()),
-            domainAthleteEntity: $athleteEntity,
-        ));
+        $this->entityManager->delete($this->get($athleteEntity->getId()));
         $this->entityManager->run();
     }
 

@@ -8,7 +8,6 @@ use App\Infrastructure\Persistence\CycleORM\Repositories\ClubCycleORMRepository;
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
 use Cycle\Annotated\Annotation\Relation\HasMany;
-use Cycle\Annotated\Annotation\Relation\ManyToMany;
 use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
 
@@ -33,17 +32,6 @@ class ClubCycleORMEntity
             load: 'eager',
         )]
         private array $sportTypes = [],
-        #[ManyToMany(
-            target: AthleteCycleORMEntity::class,
-            through: ClubAthleteCycleORMEntity::class,
-            innerKey: 'id',
-            outerKey: 'id',
-            throughInnerKey: 'club_id',
-            throughOuterKey: 'user_id',
-            fkOnDelete: 'CASCADE',
-            load: 'eager',
-        )]
-        private array $athletes = [],
     ) {}
 
     public function getId(): UuidInterface
@@ -94,18 +82,5 @@ class ClubCycleORMEntity
     public function setSportTypes(array $sportTypes): void
     {
         $this->sportTypes = $sportTypes;
-    }
-
-    /**
-     * @return AthleteCycleORMEntity[]
-     */
-    public function getAthletes(): array
-    {
-        return $this->athletes;
-    }
-
-    public function setAthletes(array $athletes): void
-    {
-        $this->athletes = $athletes;
     }
 }
