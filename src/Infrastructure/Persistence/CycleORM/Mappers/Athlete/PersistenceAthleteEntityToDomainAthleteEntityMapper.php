@@ -23,7 +23,7 @@ final readonly class PersistenceAthleteEntityToDomainAthleteEntityMapper
                 UserGenderEnum::male->name => UserGenderEnum::male,
                 UserGenderEnum::female->name => UserGenderEnum::female,
             },
-            password: $persistenceAthleteEntity->getEmail(),
+            password: $persistenceAthleteEntity->getPassword(),
             birthday: $persistenceAthleteEntity->getBirthday(),
         );
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\UseCases\Command\Athlete\RegisterAthlete;
 
+use App\Application\DTO\Token\TokenDTO;
 use App\Application\Exceptions\ApplicationException;
 use App\Domain\Collections\ClubCollection;
 use App\Domain\Criteria\Club\ClubQueryCriteria;
@@ -35,7 +36,7 @@ final readonly class RegisterAthleteCommandHandler
     /**
      * @throws ApplicationException
      */
-    public function handle(RegisterAthleteCommand $command): RegisterAthleteDTO
+    public function handle(RegisterAthleteCommand $command): TokenDTO
     {
         try {
             $registerAthleteData = $this->registerAthleteService->register(new RegisterAthleteInputDTO(
@@ -62,7 +63,7 @@ final readonly class RegisterAthleteCommandHandler
             throw new ApplicationException($exception->getMessage());
         }
 
-        return new RegisterAthleteDTO(
+        return new TokenDTO(
             accessToken: $registerAthleteData->accessToken,
             refreshToken: $registerAthleteData->refreshToken,
         );

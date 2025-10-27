@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Collections;
 
-final class AthleteCollection extends AbstractPaginatedCollection
+final class TokenCollection extends AbstractPaginatedCollection
 {
     public function getType(): string
     {
-        return 'App\Domain\Entities\AthleteEntity';
+        return 'App\Domain\Entities\TokenEntity';
     }
 }

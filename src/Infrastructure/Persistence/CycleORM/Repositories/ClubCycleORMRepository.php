@@ -6,10 +6,12 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 
 use App\Domain\Collections\ClubCollection;
 use App\Domain\Criteria\Club\ClubCriteriaInterface;
+use App\Domain\Criteria\SortCriteria;
 use App\Domain\Entities\ClubEntity;
 use App\Domain\Enums\Club\SportTypeEnum;
 use App\Domain\Exceptions\Club\ClubNotFoundException;
 use App\Domain\Repositories\ClubRepositoryInterface;
+use App\Domain\ValueObjects\PaginationVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Club\DomainClubEntityToPersistenceClubEntityMapper;
@@ -73,13 +75,40 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
     {
         $query = $this->select()->load(self::RELATIONS);
 
-        if (is_array($criteria->externalIds) && count($criteria->externalIds)) {
+        if ($criteria->ids) {
+            $query = $query->andWhere('id', 'IN', $criteria->ids);
+        }
+        if ($criteria->externalIds) {
             $query = $query->andWhere('external_id', 'IN', $criteria->externalIds);
         }
+        if ($criteria->sportTypes) {
+            $query = $query->andWhere('sportTypes.type', 'IN', \array_map(static fn(SportTypeEnum $sportType) => $sportType->name, $criteria->sportTypes));
+        }
+        if ($criteria->sorts) {
+            foreach ($criteria->sorts as $sort) {
+                /** @var SortCriteria $sort */
+                $query->orderBy($sort->field, $sort->direction->name);
+            }
+        }
 
-        return new ClubCollection(\array_map(fn(ClubCycleORMEntity $clubEntity) => $this->toDomainClubEntityMapper->map(
+        $totalCountQuery = clone $query;
+        if ($criteria->pagination) {
+            $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
+            $query->limit($criteria->pagination->pageSize)->offset($offset);
+        }
+
+        $data = \array_map(fn(ClubCycleORMEntity $clubEntity) => $this->toDomainClubEntityMapper->map(
             persistenceClubEntity: $clubEntity,
-        ), $query->fetchAll()));
+        ), $query->fetchAll());
+
+        return new ClubCollection(
+            data: $data,
+            pagination: new PaginationVO(
+                page: $criteria->pagination?->page ?? 1,
+                pageSize: $criteria->pagination?->pageSize ?? \count($data),
+                totalCount: $totalCountQuery->count(),
+            ),
+        );
     }
 
     private function get(UuidInterface $id): ?object

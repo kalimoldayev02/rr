@@ -8,7 +8,6 @@ use App\Domain\Criteria\Athlete\AthleteQueryCriteria;
 use App\Domain\DTO\Athlete\AthleteExternalDataDTO;
 use App\Domain\Entities\AthleteEntity;
 use App\Domain\Entities\OAuthTokenEntity;
-use App\Domain\Entities\TokenEntity;
 use App\Domain\Enums\Token\OAuthTokenProviderEnum;
 use App\Domain\Enums\Token\TokenTypeEnum;
 use App\Domain\Exceptions\Athlete\AthleteExistsException;
@@ -16,10 +15,11 @@ use App\Domain\Exceptions\Auth\AuthStateNotValidException;
 use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\Repositories\AuthStateRepositoryInterface;
 use App\Domain\Repositories\OAuthTokenRepositoryInterface;
-use App\Domain\Repositories\TokenRepositoryInterface;
 use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteDTO;
 use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteService;
 use App\Domain\Services\ExternalServiceInterface;
+use App\Domain\Services\Token\CreateToken\CreateTokenDTO;
+use App\Domain\Services\Token\CreateToken\CreateTokenService;
 use App\Domain\Services\Token\GenerateAccessToken\GenerateAccessTokenService;
 use App\Domain\Services\Token\GenerateRefreshToken\GenerateRefreshTokenService;
 use App\Domain\Specifications\Athlete\AthleteEmailIsUniqueSpecification;
@@ -40,8 +40,8 @@ final readonly class RegisterAthleteService
         private CreateAthleteService $createAthleteService,
         private GenerateAccessTokenService $generateAccessTokenService,
         private GenerateRefreshTokenService $generateRefreshTokenService,
-        private TokenRepositoryInterface $tokenRepository,
         private OauthTokenRepositoryInterface $oAuthTokenRepository,
+        private CreateTokenService $createTokenService,
     ) {}
 
     public function register(RegisterAthleteInputDTO $registerAthlete): RegisterAthleteOutputDTO
@@ -97,12 +97,10 @@ final readonly class RegisterAthleteService
 
     private function createToken(AthleteEntity $athleteEntity, TokenVO $tokenVO, TokenTypeEnum $type): void
     {
-        $this->tokenRepository->create(new TokenEntity(
-            id: new IdVO()->getValue(),
+        $this->createTokenService->create(new CreateTokenDTO(
             userId: $athleteEntity->getId(),
-            token: $tokenVO->getToken(),
             type: $type,
-            expiresAt: $tokenVO->getExpiresAt(),
+            tokenVO: $tokenVO,
         ));
     }
 

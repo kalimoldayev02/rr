@@ -6,10 +6,13 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 
 use App\Domain\Collections\AthleteCollection;
 use App\Domain\Criteria\Athlete\AthleteCriteriaInterface;
+use App\Domain\Criteria\SortCriteria;
 use App\Domain\Entities\AthleteEntity;
+use App\Domain\Enums\User\UserGenderEnum;
 use App\Domain\Exceptions\Athlete\AthleteNotFoundException;
 use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\ValueObjects\EmailVO;
+use App\Domain\ValueObjects\PaginationVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\DomainAthleteEntityToPersistenceAthleteEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\PersistenceAthleteEntityToDomainAthleteEntityMapper;
@@ -20,7 +23,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class AthleteCycleORMRepository extends Repository implements AthleteRepositoryInterface
 {
-    private const RELATIONS = ['metadata'];
+    private const array RELATIONS = ['metadata', 'clubAthletes'];
 
     public function __construct(
         Select $select,
@@ -68,30 +71,60 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
 
     public function getById(UuidInterface $id): AthleteEntity
     {
-        if (!$persistenceAthleteEntity = $this->get($id)) {
-            throw new AthleteNotFoundException();
-        }
-        return $this->toDomainAthleteEntityMapper->map($persistenceAthleteEntity);
+        return $this->toDomainAthleteEntityMapper->map($this->get($id));
     }
 
     public function getByCriteria(AthleteCriteriaInterface $criteria): AthleteCollection
     {
         $query = $this->select()->load(self::RELATIONS);
 
-        if (is_array($criteria->externalIds) && count($criteria->externalIds) > 0) {
+        if ($criteria->ids) {
+            $query = $query->andWhere('id', 'IN', $criteria->ids);
+        }
+        if ($criteria->externalIds) {
             $query = $query->andWhere('metadata.external_id', 'IN', $criteria->externalIds);
         }
-        if (is_array($criteria->emails) && count($criteria->emails) > 0) {
-            $query = $query->andWhere('email', 'IN', array_map(fn(EmailVO $email) => $email->getValue(), $criteria->emails));
+        if ($criteria->emails) {
+            $query = $query->andWhere('email', 'IN', \array_map(static fn(EmailVO $email) => $email->getValue(), $criteria->emails));
+        }
+        if ($criteria->genders) {
+            $query = $query->andWhere('gender', 'IN', \array_map(static fn(UserGenderEnum $gender) => $gender->name, $criteria->genders));
+        }
+        if ($criteria->clubIds) {
+            $query = $query->andWhere('clubAthletes.club_id', 'IN', $criteria->clubIds);
+        }
+        if ($criteria->sorts) {
+            foreach ($criteria->sorts as $sort) {
+                /** @var SortCriteria $sort */
+                $query->orderBy($sort->field, $sort->direction->name);
+            }
         }
 
-        return new AthleteCollection(\array_map(fn(AthleteCycleORMEntity $athleteEntity) => $this->toDomainAthleteEntityMapper->map(
+        $totalCountQuery = clone $query;
+        if ($criteria->pagination) {
+            $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
+            $query->limit($criteria->pagination->pageSize)->offset($offset);
+        }
+
+        $data = \array_map(fn(AthleteCycleORMEntity $athleteEntity) => $this->toDomainAthleteEntityMapper->map(
             persistenceAthleteEntity: $athleteEntity,
-        ), $query->fetchAll()));
+        ), $query->fetchAll());
+
+        return new AthleteCollection(
+            data: $data,
+            pagination: new PaginationVO(
+                page: $criteria->pagination?->page ?? 1,
+                pageSize: $criteria->pagination?->pageSize ?? \count($data),
+                totalCount: $totalCountQuery->count(),
+            ),
+        );
     }
 
-    private function get(UuidInterface $id): ?object
+    private function get(UuidInterface $id): object
     {
-        return $this->select()->wherePK($id)->load(self::RELATIONS)->fetchOne();
+        if (!$data = $this->select()->wherePK($id)->load(self::RELATIONS)->fetchOne()) {
+            throw new AthleteNotFoundException();
+        }
+        return $data;
     }
 }

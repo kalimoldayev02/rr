@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Entities;
+
+use App\Domain\Enums\User\UserGenderEnum;
+use App\Domain\ValueObjects\EmailVO;
+use Ramsey\Uuid\UuidInterface;
+
+final class UserEntity
+{
+    public function __construct(
+        private readonly UuidInterface $id,
+        private EmailVO $email,
+        private string $firstname,
+        private string $lastname,
+        private UserGenderEnum $gender,
+        private string $password,
+        private ?\DateTimeImmutable $birthday = null,
+    ) {}
+
+    public function getId(): UuidInterface
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): EmailVO
+    {
+        return $this->email;
+    }
+
+    public function setEmail(EmailVO $email): void
+    {
+        $this->email = $email;
+    }
+
+    public function getFirstname(): string
+    {
+        return $this->firstname;
+    }
+
+    public function setFirstname(string $firstname): void
+    {
+        $this->firstname = $firstname;
+    }
+
+    public function getLastname(): string
+    {
+        return $this->lastname;
+    }
+
+    public function setLastname(string $lastname): void
+    {
+        $this->lastname = $lastname;
+    }
+
+    public function getGender(): UserGenderEnum
+    {
+        return $this->gender;
+    }
+
+    public function setGender(UserGenderEnum $gender): void
+    {
+        $this->gender = $gender;
+    }
+
+    public function getBirthday(): ?\DateTimeImmutable
+    {
+        return $this->birthday;
+    }
+
+    public function setBirthday(?\DateTimeImmutable $birthday): void
+    {
+        $this->birthday = $birthday;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+}

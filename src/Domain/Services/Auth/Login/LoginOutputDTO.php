@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Application\UseCases\Command\Athlete\RegisterAthlete;
+namespace App\Domain\Services\Auth\Login;
 
-final readonly class RegisterAthleteDTO
+final readonly class LoginOutputDTO
 {
     public function __construct(
         public string $accessToken,

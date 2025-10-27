@@ -10,14 +10,14 @@ use App\Application\UseCases\Command\Athlete\RegisterAthlete\RegisterAthleteComm
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
 use App\Endpoint\Http\Exceptions\Athlete\AuthStateNotValidHttpException;
 use App\Endpoint\Http\Requests\Athlete\RegisterAthleteRequest;
-use App\Endpoint\Http\Responses\Athlete\RegisterAthleteResponse;
 use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
+use App\Endpoint\Http\Responses\Token\TokenResponse;
 
-#[OA\Get(path: '/api/athlete/auth/register', tags: ['auth'])]
+#[OA\Post(path: '/api/athlete/auth/register', tags: ['auth'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: RegisterAthleteRequest::class))]
-#[ROA\SuccessfulResponse(content: new OA\JsonContent(ref: RegisterAthleteResponse::class))]
+#[ROA\SuccessfulResponse(content: new OA\JsonContent(ref: TokenResponse::class))]
 #[ROA\NotFoundResponse]
 #[ROA\UnauthorizedResponse]
 #[ROA\ValidationErrorResponse]
@@ -31,7 +31,7 @@ final readonly class RegisterAthleteAction
     public function __invoke(
         RegisterAthleteRequest $request,
         RegisterAthleteCommandHandler $handler,
-    ): RegisterAthleteResponse {
+    ): TokenResponse {
         try {
             $registerData = $handler->handle(new RegisterAthleteCommand(
                 code: $request->getCode(),
@@ -43,7 +43,7 @@ final readonly class RegisterAthleteAction
             throw new AuthStateNotValidHttpException();
         }
 
-        return new RegisterAthleteResponse(
+        return new TokenResponse(
             accessToken: $registerData->accessToken,
             refreshToken: $registerData->refreshToken,
         );
