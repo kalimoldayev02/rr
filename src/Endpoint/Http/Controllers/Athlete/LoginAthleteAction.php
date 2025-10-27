@@ -6,6 +6,7 @@ namespace App\Endpoint\Http\Controllers\Athlete;
 
 use App\Application\UseCases\Command\Auth\Login\LoginCommand;
 use App\Application\UseCases\Command\Auth\Login\LoginCommandHandler;
+use App\Endpoint\Http\Mappers\Token\TokenDTOToTokenResponseMapper;
 use App\Endpoint\Http\Requests\Auth\LoginRequest;
 use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
@@ -24,15 +25,13 @@ final readonly class LoginAthleteAction
     public function __invoke(
         LoginRequest $request,
         LoginCommandHandler $handler,
+        TokenDTOToTokenResponseMapper $responseMapper,
     ): TokenResponse {
         $loginData = $handler->handle(new LoginCommand(
             email: $request->getEmail(),
             password: $request->getPassword(),
         ));
 
-        return new TokenResponse(
-            accessToken: $loginData->accessToken,
-            refreshToken: $loginData->refreshToken,
-        );
+        return $responseMapper->map($loginData);
     }
 }

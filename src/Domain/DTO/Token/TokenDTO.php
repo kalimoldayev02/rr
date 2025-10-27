@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Services\Auth\Login;
+namespace App\Domain\DTO\Token;
 
-final readonly class LoginOutputDTO
+final readonly class TokenDTO
 {
     public function __construct(
         public string $accessToken,

@@ -8,6 +8,7 @@ use App\Domain\Collections\TokenCollection;
 use App\Domain\Criteria\SortCriteria;
 use App\Domain\Criteria\Token\TokenCriteriaInterface;
 use App\Domain\Entities\TokenEntity;
+use App\Domain\Enums\Token\TokenTypeEnum;
 use App\Domain\Repositories\TokenRepositoryInterface;
 use App\Domain\ValueObjects\PaginationVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\TokenCycleORMEntity;
@@ -66,6 +67,12 @@ class TokenCycleORMRepository extends Repository implements TokenRepositoryInter
 
         if ($criteria->userIds) {
             $query = $query->andWhere('user_id', 'IN', $criteria->userIds);
+        }
+        if ($criteria->tokens) {
+            $query = $query->andWhere('token', 'IN', $criteria->tokens);
+        }
+        if ($criteria->types) {
+            $query = $query->andWhere('type', 'IN', \array_map(static fn(TokenTypeEnum $type) => $type->name, $criteria->types));
         }
         if ($criteria->toExpiresAt) {
             $query = $query->andWhere('expires_at', '<', $criteria->toExpiresAt);

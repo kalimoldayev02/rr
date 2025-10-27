@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Services\Auth\Login;
 
 use App\Domain\Criteria\User\UserQueryCriteria;
+use App\Domain\DTO\Token\TokenDTO;
 use App\Domain\Entities\UserEntity;
 use App\Domain\Enums\Token\TokenTypeEnum;
 use App\Domain\Exceptions\Auth\InvalidCredentialsException;
@@ -27,7 +28,7 @@ final readonly class LoginService
         private DeleteExpiredTokensByUserIdService $deleteExpiredTokensByUserIdService,
     ) {}
 
-    public function login(LoginInputDTO $login): LoginOutputDTO
+    public function login(LoginInputDTO $login): TokenDTO
     {
         $userCollection = $this->userRepository->getByCriteria(new UserQueryCriteria(
             emails: [$login->email],
@@ -52,7 +53,7 @@ final readonly class LoginService
         $this->createToken($userEntity->getId(), $accessTokenVO, TokenTypeEnum::access);
         $this->createToken($userEntity->getId(), $refreshTokenVO, TokenTypeEnum::refresh);
 
-        return new LoginOutputDTO(
+        return new TokenDTO(
             accessToken: $accessTokenVO->getToken(),
             refreshToken: $refreshTokenVO->getToken(),
         );

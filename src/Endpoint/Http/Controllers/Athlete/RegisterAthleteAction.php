@@ -9,6 +9,7 @@ use App\Application\UseCases\Command\Athlete\RegisterAthlete\RegisterAthleteComm
 use App\Application\UseCases\Command\Athlete\RegisterAthlete\RegisterAthleteCommandHandler;
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
 use App\Endpoint\Http\Exceptions\Athlete\AuthStateNotValidHttpException;
+use App\Endpoint\Http\Mappers\Token\TokenDTOToTokenResponseMapper;
 use App\Endpoint\Http\Requests\Athlete\RegisterAthleteRequest;
 use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
@@ -31,6 +32,7 @@ final readonly class RegisterAthleteAction
     public function __invoke(
         RegisterAthleteRequest $request,
         RegisterAthleteCommandHandler $handler,
+        TokenDTOToTokenResponseMapper $responseMapper,
     ): TokenResponse {
         try {
             $registerData = $handler->handle(new RegisterAthleteCommand(
@@ -43,9 +45,6 @@ final readonly class RegisterAthleteAction
             throw new AuthStateNotValidHttpException();
         }
 
-        return new TokenResponse(
-            accessToken: $registerData->accessToken,
-            refreshToken: $registerData->refreshToken,
-        );
+        return $responseMapper->map($registerData);
     }
 }
