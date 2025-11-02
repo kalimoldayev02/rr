@@ -11,7 +11,6 @@ final class OAuthTokenEntity
 {
     public function __construct(
         private readonly UuidInterface $id,
-        private readonly UuidInterface $userId,
         private OAuthTokenProviderEnum $provider,
         private string $accessToken,
         private string $refreshToken,
@@ -21,11 +20,6 @@ final class OAuthTokenEntity
     public function getId(): UuidInterface
     {
         return $this->id;
-    }
-
-    public function getUserId(): UuidInterface
-    {
-        return $this->userId;
     }
 
     public function getProvider(): OAuthTokenProviderEnum

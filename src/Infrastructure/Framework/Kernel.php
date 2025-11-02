@@ -11,7 +11,6 @@ use Spiral\Bootloader\Http\HttpBootloader;
 use Spiral\Cache\Bootloader\CacheBootloader;
 use Spiral\Cycle\Bootloader as CycleBridge;
 use Spiral\DataGrid\Bootloader\GridBootloader;
-use Spiral\Debug\Bootloader\DumperBootloader;
 use Spiral\Distribution\Bootloader\DistributionBootloader;
 use Spiral\DotEnv\Bootloader\DotenvBootloader;
 use Spiral\Events\Bootloader\EventsBootloader;
@@ -42,8 +41,6 @@ class Kernel extends \Spiral\Framework\Kernel
             CoreBootloader::class,
             DotenvBootloader::class,
             TokenizerListenerBootloader::class,
-
-            DumperBootloader::class,
         ];
     }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 
 use App\Domain\Collections\UserCollection;
-use App\Domain\Criteria\SortCriteria;
 use App\Domain\Criteria\User\UserQueryCriteria;
 use App\Domain\Entities\UserEntity;
 use App\Domain\Enums\User\UserGenderEnum;
@@ -14,6 +13,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\PaginationVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\UserCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
 use App\Infrastructure\Persistence\CycleORM\Mappers\User\DomainUserEntityToPersistenceUserEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\User\PersistenceUserEntityToDomainUserEntityMapper;
 use Cycle\ORM\EntityManagerInterface;
@@ -26,6 +26,7 @@ class UserCycleORMRepository extends Repository implements UserRepositoryInterfa
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
+        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
         private readonly PersistenceUserEntityToDomainUserEntityMapper $toDomainUserMapper,
         private readonly DomainUserEntityToPersistenceUserEntityMapper $toPersistenceUserMapper,
     ) {
@@ -92,11 +93,9 @@ class UserCycleORMRepository extends Repository implements UserRepositoryInterfa
         if ($criteria->genders) {
             $query = $query->andWhere('gender', 'IN', \array_map(static fn(UserGenderEnum $gender) => $gender->name, $criteria->genders));
         }
+
         if ($criteria->sorts) {
-            foreach ($criteria->sorts as $sort) {
-                /** @var SortCriteria $sort */
-                $query->orderBy($sort->field, $sort->direction->name);
-            }
+            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
         }
 
         $totalCountQuery = clone $query;

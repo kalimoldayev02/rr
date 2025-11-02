@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Entities;
 
 use App\Domain\Enums\Club\SportTypeEnum;
-use App\Domain\ValueObjects\IdVO;
 use Ramsey\Uuid\UuidInterface;
 
 final class ClubEntity

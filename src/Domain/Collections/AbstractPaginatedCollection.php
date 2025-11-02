@@ -11,15 +11,11 @@ use Ramsey\Collection\Sort;
 
 abstract class AbstractPaginatedCollection extends AbstractCollection
 {
-    private ?PaginationVO $pagination = null;
-
     public function __construct(
         array $data = [],
-        ?PaginationVO $pagination = null,
+        private ?PaginationVO $pagination = null,
     ) {
         parent::__construct($data);
-
-        $this->pagination = $pagination;
     }
 
     public function add(mixed $element): bool
@@ -148,7 +144,7 @@ abstract class AbstractPaginatedCollection extends AbstractCollection
         $offset =  ($this->pagination->page - 1) * $pageSize;
 
         $newTotalCount = $offset + $currentCount;
-        $newTotalPages = $pageSize > 0 ? (int)ceil($newTotalCount / $pageSize) : 1;
+        $newTotalPages = $pageSize > 0 ? (int) ceil($newTotalCount / $pageSize) : 1;
         $currentPage = min($this->pagination->page, max(1, $newTotalPages));
 
         $this->pagination = new PaginationVO(

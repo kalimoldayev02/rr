@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Services\Jwt;
 
+use App\Domain\Entities\AccessTokenEntity;
 use App\Domain\Exceptions\Auth\InvalidTokenException;
 use App\Domain\Exceptions\Auth\TokenExpiredException;
-use App\Domain\Services\Auth\JwtServiceInterface;
-use App\Domain\ValueObjects\TokenVO;
+use App\Domain\Services\Jwt\JwtServiceInterface;
+use App\Domain\ValueObjects\IdVO;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
@@ -21,12 +22,14 @@ final readonly class JwtService implements JwtServiceInterface
         private JwtConfig $jwtConfig,
     ) {}
 
-    public function generateAccessToken(UuidInterface $userId): TokenVO
+    public function generateAccessToken(UuidInterface $userId): AccessTokenEntity
     {
+        $id = new IdVO()->getValue();
         $issuedAt = \time();
         $expiration = $issuedAt + $this->jwtConfig->get('ttl');
 
         $payload = [
+            'iss' => $id,
             'iat' => $issuedAt,
             'exp' => $expiration,
             'sub' => $userId->toString(),
@@ -38,40 +41,32 @@ final readonly class JwtService implements JwtServiceInterface
             alg: $this->jwtConfig->get('algorithm'),
         );
 
-        return new TokenVO(
+        return new AccessTokenEntity(
+            id: $id,
+            userId: $userId,
             token: $token,
             expiresAt: new \DateTimeImmutable("@$expiration"),
         );
     }
 
-    public function validateAccessToken(string $token): array
+    public function decodeAccessToken(string $accessToken): AccessTokenEntity
     {
         try {
             $decoded = JWT::decode(
-                jwt: $token,
+                jwt: $accessToken,
                 keyOrKeyArray: new Key($this->jwtConfig->get('secret'), $this->jwtConfig->get('algorithm')),
             );
 
-            return (array) $decoded;
+            return new AccessTokenEntity(
+                id: Uuid::fromString($decoded->iss),
+                userId: Uuid::fromString($decoded->sub),
+                token: $accessToken,
+                expiresAt: new \DateTimeImmutable("@{$decoded->exp}"),
+            );
         } catch (ExpiredException $e) {
             throw new TokenExpiredException();
         } catch (BeforeValidException | \Exception $e) {
             throw new InvalidTokenException($e->getMessage());
-        }
-    }
-
-    public function getAthleteIdFromToken(string $token): UuidInterface
-    {
-        $payload = $this->validateAccessToken($token);
-
-        if (!isset($payload['sub']) || !\is_string($payload['sub'])) {
-            throw new InvalidTokenException('Invalid token payload');
-        }
-
-        try {
-            return Uuid::fromString($payload['sub']);
-        } catch (\Exception $e) {
-            throw new InvalidTokenException('Invalid athlete ID in token');
         }
     }
 }

@@ -25,6 +25,15 @@ class AthleteCycleORMEntity
     )]
     private array $clubAthletes = [];
 
+    #[HasMany(
+        target: OAuthTokenCycleORMEntity::class,
+        innerKey: 'id',
+        outerKey: 'user_id',
+        fkOnDelete: 'CASCADE',
+        load: 'eager',
+    )]
+    private array $oAuthTokens = [];
+
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         private UuidInterface $id,
@@ -42,6 +51,10 @@ class AthleteCycleORMEntity
         private ?\DateTimeImmutable $birthday,
         #[Column(type: 'string')]
         private string $password,
+        #[Column(type: 'timestamptz', name: 'created_at', typecast: 'datetime')]
+        private ?\DateTimeImmutable $createdAt = null,
+        #[Column(type: 'timestamptz', name: 'updated_at', typecast: 'datetime')]
+        private ?\DateTimeImmutable $updatedAt = null,
     ) {}
 
     public function getId(): UuidInterface
@@ -135,5 +148,38 @@ class AthleteCycleORMEntity
     public function setClubAthletes(array $clubAthletes): void
     {
         $this->clubAthletes = $clubAthletes;
+    }
+
+    /**
+     * @return OAuthTokenCycleORMEntity[]
+     */
+    public function getOAuthTokens(): array
+    {
+        return $this->oAuthTokens;
+    }
+
+    public function setOAuthTokens(array $oAuthTokens): void
+    {
+        $this->oAuthTokens = $oAuthTokens;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

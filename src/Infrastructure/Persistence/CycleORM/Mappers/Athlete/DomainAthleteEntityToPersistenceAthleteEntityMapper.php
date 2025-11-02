@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\CycleORM\Mappers\Athlete;
 
 use App\Domain\Entities\AthleteEntity;
+use App\Domain\Entities\OAuthTokenEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteMetadataCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubAthleteCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Entities\OAuthTokenCycleORMEntity;
 
 final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
 {
@@ -23,9 +25,17 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
         $persistenceAthleteEntity->setMetadata(
             $this->collectMetadata($persistenceAthleteEntity, $domainAthleteEntity),
         );
+        $persistenceAthleteEntity->setOAuthTokens(
+            $this->collectOAuthTokens($persistenceAthleteEntity, $domainAthleteEntity),
+        );
+
         $persistenceAthleteEntity->setClubAthletes(
             $this->collectClubAthletes($persistenceAthleteEntity, $domainAthleteEntity),
         );
+        if ($persistenceAthleteEntity->getCreatedAt() === null) {
+            $persistenceAthleteEntity->setCreatedAt(new \DateTimeImmutable());
+        }
+        $persistenceAthleteEntity->setUpdatedAt(new \DateTimeImmutable());
 
         return $persistenceAthleteEntity;
     }
@@ -68,5 +78,37 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
             );
         }
         return $metaData;
+    }
+
+    /**
+     * @return OAuthTokenCycleORMEntity[]
+     */
+    private function collectOAuthTokens(AthleteCycleORMEntity $persistenceAthleteEntity, AthleteEntity $domainAthleteEntity): array
+    {
+        $tokensToPersist = [];
+        $currentTokensMap = [];
+
+        foreach ($persistenceAthleteEntity->getOAuthTokens() as $persistTokenEntity) {
+            /** @var OAuthTokenCycleORMEntity $persistTokenEntity */
+            $currentTokensMap[$persistTokenEntity->getId()->toString()] = $persistTokenEntity;
+        }
+
+        /** @var OAuthTokenEntity $oAuthTokenEntity */
+        foreach ($domainAthleteEntity->getOAuthTokes() as $oAuthTokenEntity) {
+            if ($currentTokenEntity = $currentTokensMap[$oAuthTokenEntity->getId()->toString()] ?? null) {
+                $tokensToPersist[] = $currentTokenEntity;
+            } else {
+                $tokensToPersist[] = new OAuthTokenCycleORMEntity(
+                    id: $oAuthTokenEntity->getId(),
+                    athlete: $persistenceAthleteEntity,
+                    provider: $oAuthTokenEntity->getProvider()->name,
+                    accessToken: $oAuthTokenEntity->getAccessToken(),
+                    refreshToken: $oAuthTokenEntity->getRefreshToken(),
+                    expiresAt: $oAuthTokenEntity->getExpiresAt(),
+                );
+            }
+        }
+
+        return $tokensToPersist;
     }
 }

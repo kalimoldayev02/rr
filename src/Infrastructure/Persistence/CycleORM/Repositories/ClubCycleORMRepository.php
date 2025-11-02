@@ -6,7 +6,6 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 
 use App\Domain\Collections\ClubCollection;
 use App\Domain\Criteria\Club\ClubCriteriaInterface;
-use App\Domain\Criteria\SortCriteria;
 use App\Domain\Entities\ClubEntity;
 use App\Domain\Enums\Club\SportTypeEnum;
 use App\Domain\Exceptions\Club\ClubNotFoundException;
@@ -16,6 +15,7 @@ use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Club\DomainClubEntityToPersistenceClubEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Club\PersistenceClubEntityToDomainClubEntityMapper;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
 use Cycle\ORM\Select\Repository;
 use Cycle\ORM\EntityManagerInterface;
 use Cycle\ORM\Select;
@@ -28,6 +28,7 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
+        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
         private readonly PersistenceClubEntityToDomainClubEntityMapper $toDomainClubEntityMapper,
         private readonly DomainClubEntityToPersistenceClubEntityMapper $toPersistenceClubEntityMapper,
     ) {
@@ -65,10 +66,7 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
 
     public function getById(UuidInterface $id): ClubEntity
     {
-        if (!$persistenceClubEntity = $this->get($id)) {
-            throw new ClubNotFoundException();
-        }
-        return $this->toDomainClubEntityMapper->map($persistenceClubEntity);
+        return $this->toDomainClubEntityMapper->map($this->get($id));
     }
 
     public function getByCriteria(ClubCriteriaInterface $criteria): ClubCollection
@@ -78,17 +76,17 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
         if ($criteria->ids) {
             $query = $query->andWhere('id', 'IN', $criteria->ids);
         }
+
         if ($criteria->externalIds) {
             $query = $query->andWhere('external_id', 'IN', $criteria->externalIds);
         }
+
         if ($criteria->sportTypes) {
             $query = $query->andWhere('sportTypes.type', 'IN', \array_map(static fn(SportTypeEnum $sportType) => $sportType->name, $criteria->sportTypes));
         }
+
         if ($criteria->sorts) {
-            foreach ($criteria->sorts as $sort) {
-                /** @var SortCriteria $sort */
-                $query->orderBy($sort->field, $sort->direction->name);
-            }
+            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
         }
 
         $totalCountQuery = clone $query;
@@ -111,8 +109,11 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
         );
     }
 
-    private function get(UuidInterface $id): ?object
+    private function get(UuidInterface $id): object
     {
-        return $this->select()->wherePK($id)->load(self::RELATIONS)->fetchOne();
+        if (!$data = $this->select()->wherePK($id)->load(self::RELATIONS)) {
+            throw new ClubNotFoundException();
+        }
+        return $data;
     }
 }

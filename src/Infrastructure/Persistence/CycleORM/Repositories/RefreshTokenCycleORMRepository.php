@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Infrastructure\Persistence\CycleORM\Repositories;
+
+use App\Domain\Collections\RefreshTokenCollection;
+use App\Domain\Entities\RefreshTokenEntity;
+use App\Domain\Exceptions\RefreshToken\RefreshTokenNotFoundException;
+use App\Domain\Repositories\RefreshTokenRepositoryInterface;
+use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Persistence\CycleORM\Entities\RefreshTokenCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
+use Cycle\ORM\EntityManagerInterface;
+use Cycle\ORM\Select;
+use Cycle\ORM\Select\Repository;
+use App\Infrastructure\Persistence\CycleORM\Mappers\RefreshToken\DomainRefreshTokenEntityToPersistenceRefreshTokenEntityMapper;
+use App\Infrastructure\Persistence\CycleORM\Mappers\RefreshToken\PersistenceTokenEntityToDomainTokenEntityMapper;
+use Ramsey\Uuid\UuidInterface;
+use App\Domain\Criteria\RefreshToken\RefreshTokenCriteriaInterface;
+
+class RefreshTokenCycleORMRepository extends Repository implements RefreshTokenRepositoryInterface
+{
+    public function __construct(
+        Select $select,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
+        private readonly DomainRefreshTokenEntityToPersistenceRefreshTokenEntityMapper $toPersistenceRefreshTokenEntityMapper,
+        private readonly PersistenceTokenEntityToDomainTokenEntityMapper $toDomainRefreshTokenEntityMapper,
+    ) {
+        parent::__construct($select);
+    }
+
+    public function create(RefreshTokenEntity $refreshTokenEntity): void
+    {
+        $persistenceTokenEntity = new RefreshTokenCycleORMEntity(
+            id: $refreshTokenEntity->getId(),
+            userId: $refreshTokenEntity->getUserId(),
+            token: $refreshTokenEntity->getToken(),
+            expiresAt: $refreshTokenEntity->getExpiresAt(),
+        );
+
+        $this->entityManager->persist($this->toPersistenceRefreshTokenEntityMapper->map(
+            persistenceRefreshTokenEntity: $persistenceTokenEntity,
+            domainRefreshTokenEntity: $refreshTokenEntity,
+        ));
+        $this->entityManager->run();
+    }
+
+    public function delete(RefreshTokenEntity $refreshTokenEntity): void
+    {
+        $this->entityManager->delete($this->get($refreshTokenEntity->getId()));
+        $this->entityManager->run();
+    }
+
+    public function getByCriteria(RefreshTokenCriteriaInterface $criteria): RefreshTokenCollection
+    {
+        $query = $this->select();
+
+        if ($criteria->userIds) {
+            $query = $query->andWhere('user_id', 'IN', $criteria->userIds);
+        }
+
+        if ($criteria->tokens) {
+            $query = $query->andWhere('token', 'IN', $criteria->tokens);
+        }
+
+        if ($criteria->toExpiresAt) {
+            $query = $query->andWhere('expires_at', '<=', $criteria->toExpiresAt);
+        }
+
+        if ($criteria->sorts) {
+            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
+        }
+
+        $totalCountQuery = clone $query;
+        if ($criteria->pagination) {
+            $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
+            $query->limit($criteria->pagination->pageSize)->offset($offset);
+        }
+
+        $data = \array_map(fn(RefreshTokenCycleORMEntity $refreshTokenEntity) => $this->toDomainRefreshTokenEntityMapper->map(
+            persistenceRefreshTokenEntity: $refreshTokenEntity,
+        ), $query->fetchAll());
+
+        return new RefreshTokenCollection(
+            data: $data,
+            pagination: new PaginationVO(
+                page: $criteria->pagination?->page ?? 1,
+                pageSize: $criteria->pagination?->pageSize ?? \count($data),
+                totalCount: $totalCountQuery->count(),
+            ),
+        );
+    }
+
+    private function get(UuidInterface $id): object
+    {
+        if (!$data = $this->select()->wherePK($id)->fetchOne()) {
+            throw new RefreshTokenNotFoundException();
+        }
+        return $data;
+    }
+}

@@ -18,6 +18,10 @@ final readonly class DomainUserEntityToPersistenceUserEntityMapper
         $persistenceUserEntity->setGender($domainUserEntity->getGender()->name);
         $persistenceUserEntity->setBirthday($domainUserEntity->getBirthday());
         $persistenceUserEntity->setPassword($domainUserEntity->getPassword());
+        if ($persistenceUserEntity->getCreatedAt() === null) {
+            $persistenceUserEntity->setCreatedAt(new \DateTimeImmutable());
+        }
+        $persistenceUserEntity->setUpdatedAt(new \DateTimeImmutable());
 
         return $persistenceUserEntity;
     }

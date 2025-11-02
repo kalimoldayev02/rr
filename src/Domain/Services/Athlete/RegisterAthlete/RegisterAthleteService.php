@@ -4,117 +4,82 @@ declare(strict_types=1);
 
 namespace App\Domain\Services\Athlete\RegisterAthlete;
 
-use App\Domain\Criteria\Athlete\AthleteQueryCriteria;
-use App\Domain\DTO\Athlete\AthleteExternalDataDTO;
-use App\Domain\Entities\AthleteEntity;
-use App\Domain\Entities\OAuthTokenEntity;
-use App\Domain\Enums\Token\OAuthTokenProviderEnum;
-use App\Domain\Enums\Token\TokenTypeEnum;
+use App\Domain\Collections\ClubIdCollection;
 use App\Domain\Exceptions\Athlete\AthleteExistsException;
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
-use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\Repositories\AuthStateRepositoryInterface;
-use App\Domain\Repositories\OAuthTokenRepositoryInterface;
-use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteDTO;
-use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteService;
-use App\Domain\Services\ExternalServiceInterface;
-use App\Domain\Services\Token\CreateToken\CreateTokenDTO;
-use App\Domain\Services\Token\CreateToken\CreateTokenService;
-use App\Domain\Services\Token\GenerateAccessToken\GenerateAccessTokenService;
-use App\Domain\Services\Token\GenerateRefreshToken\GenerateRefreshTokenService;
+use App\Domain\Services\Auth\GenerateAccessToken\GenerateAccessTokenService;
+use App\Domain\Services\Auth\GenerateRefreshToken\GenerateRefreshTokenService;
 use App\Domain\Specifications\Athlete\AthleteEmailIsUniqueSpecification;
 use App\Domain\Specifications\Auth\AuthStateIsValidSpecification;
 use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\IdVO;
-use App\Domain\ValueObjects\TokenVO;
 use Ramsey\Uuid\UuidInterface;
+use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteDTO;
+use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteService;
+use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
+use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteDataDTO;
 
 final readonly class RegisterAthleteService
 {
     public function __construct(
-        private ExternalServiceInterface $externalService,
+        private ExchangeAthleteCodeInterface $externalService,
         private AuthStateIsValidSpecification $stateIsValidSpecification,
         private AthleteEmailIsUniqueSpecification $athleteEmailIsUniqueSpecification,
         private AuthStateRepositoryInterface  $authStateRepository,
-        private AthleteRepositoryInterface $athleteRepository,
         private CreateAthleteService $createAthleteService,
         private GenerateAccessTokenService $generateAccessTokenService,
         private GenerateRefreshTokenService $generateRefreshTokenService,
-        private OauthTokenRepositoryInterface $oAuthTokenRepository,
-        private CreateTokenService $createTokenService,
     ) {}
 
-    public function register(RegisterAthleteInputDTO $registerAthlete): RegisterAthleteOutputDTO
+    /**
+     * @throws AuthStateNotValidException
+     * @throws AthleteExistsException
+     */
+    public function register(RegisterAthleteInputDTO $registerAthleteData): RegisterAthleteOutputDTO
     {
-        if (!$this->athleteEmailIsUniqueSpecification->isSatisfiedBy(new EmailVO($registerAthlete->email))) {
-            throw new AthleteExistsException();
-        }
-        if (!$this->stateIsValidSpecification->isSatisfiedBy($registerAthlete->state)) {
+        if (!$this->stateIsValidSpecification->isSatisfiedBy($registerAthleteData->state)) {
             throw new AuthStateNotValidException();
         }
-        $this->authStateRepository->delete($registerAthlete->state);
-        $externalData = $this->externalService->exchangeCode($registerAthlete->code);
+        if (!$this->athleteEmailIsUniqueSpecification->isSatisfiedBy(new EmailVO($registerAthleteData->email))) {
+            throw new AthleteExistsException();
+        }
 
-        $athleteEntity = $this->persistAthlete($externalData, $registerAthlete);
+        $externalData = $this->externalService->exchange($registerAthleteData->code);
+        $this->authStateRepository->delete($registerAthleteData->state);
 
-        $accessTokenVO = $this->generateAccessTokenService->generate($athleteEntity->getId());
-        $refreshTokenVO = $this->generateRefreshTokenService->generate();
+        $athleteId = $this->createAthlete($externalData, $registerAthleteData);
 
-        $this->createToken($athleteEntity, $accessTokenVO, TokenTypeEnum::access);
-        $this->createToken($athleteEntity, $refreshTokenVO, TokenTypeEnum::refresh);
-        $this->createOAuthToken($externalData, $athleteEntity->getId());
+        $accessTokenEntity = $this->generateAccessTokenService->generate($athleteId);
+        $refreshTokenEntity = $this->generateRefreshTokenService->generate($athleteId);
 
         return new RegisterAthleteOutputDTO(
-            athleteEntity: $athleteEntity,
-            accessToken: $accessTokenVO->getToken(),
-            refreshToken: $refreshTokenVO->getToken(),
-            oAuthToken: $externalData->accessToken,
+            athleteId: $athleteId,
+            accessToken: $accessTokenEntity->getToken(),
+            refreshToken: $refreshTokenEntity->getToken(),
         );
     }
 
-    private function persistAthlete(AthleteExternalDataDTO $athleteExternalData, RegisterAthleteInputDTO $registerAthlete): AthleteEntity
+    /**
+     * @throws AthleteExistsException
+     */
+    private function createAthlete(ExchangeAthleteDataDTO $athleteData, RegisterAthleteInputDTO $registerAthlete): UuidInterface
     {
-        $athleteCollection = $this->athleteRepository->getByCriteria(new AthleteQueryCriteria(
-            externalIds: [$athleteExternalData->externalId],
-        ));
-        if (!$athleteCollection->isEmpty()) {
-            return $athleteCollection->first();
-        }
-
         $athleteId = new IdVO()->getValue();
         $this->createAthleteService->create(new CreateAthleteDTO(
             id: $athleteId,
             email: $registerAthlete->email,
-            externalId: $athleteExternalData->externalId,
-            firstname: $athleteExternalData->firstname,
-            lastname: $athleteExternalData->lastname,
-            gender: $athleteExternalData->gender,
+            externalId: $athleteData->externalId,
+            firstname: $athleteData->firstname,
+            lastname: $athleteData->lastname,
+            gender: $athleteData->gender,
             password: $registerAthlete->password,
+            oAuthAccessToken: $athleteData->accessToken,
+            oAuthRefreshToken: $athleteData->refreshToken,
+            oAuthExpiresIn: $athleteData->expiresIn,
+            clubIds: new ClubIdCollection(),
         ));
 
-        return $this->athleteRepository->getById($athleteId);
-    }
-
-    private function createToken(AthleteEntity $athleteEntity, TokenVO $tokenVO, TokenTypeEnum $type): void
-    {
-        $this->createTokenService->create(new CreateTokenDTO(
-            userId: $athleteEntity->getId(),
-            type: $type,
-            tokenVO: $tokenVO,
-        ));
-    }
-
-    private function createOAuthToken(
-        AthleteExternalDataDTO $athleteExternalData,
-        UuidInterface $userId,
-    ): void {
-        $this->oAuthTokenRepository->create(new OAuthTokenEntity(
-            id: new IdVO()->getValue(),
-            userId: $userId,
-            provider: OAuthTokenProviderEnum::strava,
-            accessToken: $athleteExternalData->accessToken,
-            refreshToken: $athleteExternalData->refreshToken,
-            expiresAt: new \DateTimeImmutable("@$athleteExternalData->expiresAt"),
-        ));
+        return $athleteId;
     }
 }

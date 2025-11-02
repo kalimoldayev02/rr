@@ -14,7 +14,6 @@ final readonly class PersistenceOAuthTokenEntityToDomainOAuthTokenEntityMapper
     {
         return new OAuthTokenEntity(
             id: $persistenceEntity->id,
-            userId: $persistenceEntity->userId,
             provider: match ($persistenceEntity->provider) {
                 OAuthTokenProviderEnum::strava->name => OAuthTokenProviderEnum::strava,
             },

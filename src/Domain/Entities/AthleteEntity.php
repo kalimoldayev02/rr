@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Entities;
 
 use App\Domain\Collections\ClubIdCollection;
+use App\Domain\Collections\OAuthTokenCollection;
 use App\Domain\Enums\User\UserGenderEnum;
 use App\Domain\ValueObjects\EmailVO;
 use Ramsey\Uuid\UuidInterface;
@@ -12,6 +13,7 @@ use Ramsey\Uuid\UuidInterface;
 final class AthleteEntity
 {
     private ClubIdCollection $clubIds;
+    private OAuthTokenCollection $oAuthTokens;
 
     public function __construct(
         private readonly UuidInterface $id,
@@ -24,6 +26,7 @@ final class AthleteEntity
         private ?\DateTimeImmutable $birthday = null,
     ) {
         $this->clubIds = new ClubIdCollection();
+        $this->oAuthTokens = new OAuthTokenCollection();
     }
 
     public function getId(): UuidInterface
@@ -104,5 +107,15 @@ final class AthleteEntity
     public function setClubIds(ClubIdCollection $clubIds): void
     {
         $this->clubIds = $clubIds;
+    }
+
+    public function getOAuthTokes(): OAuthTokenCollection
+    {
+        return $this->oAuthTokens;
+    }
+
+    public function setOAuthTokens(OAuthTokenCollection $oAuthTokens): void
+    {
+        $this->oAuthTokens = $oAuthTokens;
     }
 }

@@ -25,10 +25,14 @@ class UserCycleORMEntity
         private string $lastname,
         #[Column(type: 'string')]
         private string $gender,
-        #[Column(type: 'datetime', nullable: true)]
+        #[Column(type: 'date', nullable: true, typecast: 'datetime')]
         private ?\DateTimeImmutable $birthday,
         #[Column(type: 'string')]
         private string $password,
+        #[Column(type: 'timestamptz', name: 'created_at', typecast: 'datetime')]
+        private ?\DateTimeImmutable $createdAt = null,
+        #[Column(type: 'timestamptz', name: 'updated_at', typecast: 'datetime')]
+        private ?\DateTimeImmutable $updatedAt = null,
     ) {}
 
     public function getId(): UuidInterface
@@ -99,5 +103,25 @@ class UserCycleORMEntity
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

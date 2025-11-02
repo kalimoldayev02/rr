@@ -65,16 +65,6 @@ final class UserEntity
         $this->gender = $gender;
     }
 
-    public function getBirthday(): ?\DateTimeImmutable
-    {
-        return $this->birthday;
-    }
-
-    public function setBirthday(?\DateTimeImmutable $birthday): void
-    {
-        $this->birthday = $birthday;
-    }
-
     public function getPassword(): string
     {
         return $this->password;
@@ -83,5 +73,15 @@ final class UserEntity
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    public function getBirthday(): ?\DateTimeImmutable
+    {
+        return $this->birthday;
+    }
+
+    public function setBirthday(?\DateTimeImmutable $birthday): void
+    {
+        $this->birthday = $birthday;
     }
 }

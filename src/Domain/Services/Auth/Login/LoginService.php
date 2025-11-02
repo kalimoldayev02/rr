@@ -7,16 +7,11 @@ namespace App\Domain\Services\Auth\Login;
 use App\Domain\Criteria\User\UserQueryCriteria;
 use App\Domain\DTO\Token\TokenDTO;
 use App\Domain\Entities\UserEntity;
-use App\Domain\Enums\Token\TokenTypeEnum;
 use App\Domain\Exceptions\Auth\InvalidCredentialsException;
 use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Services\Token\CreateToken\CreateTokenDTO;
-use App\Domain\Services\Token\CreateToken\CreateTokenService;
-use App\Domain\Services\Token\DeleteExpiredTokensByUserId\DeleteExpiredTokensByUserIdService;
-use App\Domain\Services\Token\GenerateAccessToken\GenerateAccessTokenService;
-use App\Domain\Services\Token\GenerateRefreshToken\GenerateRefreshTokenService;
-use App\Domain\ValueObjects\TokenVO;
-use Ramsey\Uuid\UuidInterface;
+use App\Domain\Services\Auth\GenerateAccessToken\GenerateAccessTokenService;
+use App\Domain\Services\Auth\GenerateRefreshToken\GenerateRefreshTokenService;
+use App\Domain\Services\Auth\DeleteExpiredTokens\DeleteExpiredTokensService;
 
 final readonly class LoginService
 {
@@ -24,47 +19,32 @@ final readonly class LoginService
         private UserRepositoryInterface $userRepository,
         private GenerateAccessTokenService $generateAccessTokenService,
         private GenerateRefreshTokenService $generateRefreshTokenService,
-        private CreateTokenService $createTokenService,
-        private DeleteExpiredTokensByUserIdService $deleteExpiredTokensByUserIdService,
+        private DeleteExpiredTokensService $deleteExpiredTokensService,
     ) {}
 
-    public function login(LoginInputDTO $login): TokenDTO
+    public function login(LoginDTO $loginData): TokenDTO
     {
         $userCollection = $this->userRepository->getByCriteria(new UserQueryCriteria(
-            emails: [$login->email],
+            emails: [$loginData->email],
         ));
 
         if ($userCollection->isEmpty()) {
-            throw new InvalidCredentialsException('Invalid email or password');
+            throw new InvalidCredentialsException();
         }
 
         /** @var UserEntity $userEntity */
         $userEntity = $userCollection->first();
-
-        if (!\password_verify($login->password, $userEntity->getPassword())) {
-            throw new InvalidCredentialsException('Invalid email or password');
+        if (!\password_verify($loginData->password, $userEntity->getPassword())) {
+            throw new InvalidCredentialsException();
         }
+        $accessTokenEntity = $this->generateAccessTokenService->generate($userEntity->getId());
+        $refreshTokenEntity = $this->generateRefreshTokenService->generate($userEntity->getId());
 
-        $accessTokenVO = $this->generateAccessTokenService->generate($userEntity->getId());
-        $refreshTokenVO = $this->generateRefreshTokenService->generate();
-
-        $this->deleteExpiredTokensByUserIdService->delete($userEntity->getId());
-
-        $this->createToken($userEntity->getId(), $accessTokenVO, TokenTypeEnum::access);
-        $this->createToken($userEntity->getId(), $refreshTokenVO, TokenTypeEnum::refresh);
+        $this->deleteExpiredTokensService->delete($userEntity->getId());
 
         return new TokenDTO(
-            accessToken: $accessTokenVO->getToken(),
-            refreshToken: $refreshTokenVO->getToken(),
+            accessTokenEntity: $accessTokenEntity,
+            refreshTokenEntity: $refreshTokenEntity,
         );
-    }
-
-    private function createToken(UuidInterface $userId, TokenVO $tokenVO, TokenTypeEnum $type): void
-    {
-        $this->createTokenService->create(new CreateTokenDTO(
-            userId: $userId,
-            type: $type,
-            tokenVO: $tokenVO,
-        ));
     }
 }

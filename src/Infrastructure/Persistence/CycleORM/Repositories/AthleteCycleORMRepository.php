@@ -6,7 +6,6 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 
 use App\Domain\Collections\AthleteCollection;
 use App\Domain\Criteria\Athlete\AthleteCriteriaInterface;
-use App\Domain\Criteria\SortCriteria;
 use App\Domain\Entities\AthleteEntity;
 use App\Domain\Enums\User\UserGenderEnum;
 use App\Domain\Exceptions\Athlete\AthleteNotFoundException;
@@ -16,6 +15,7 @@ use App\Domain\ValueObjects\PaginationVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\DomainAthleteEntityToPersistenceAthleteEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\PersistenceAthleteEntityToDomainAthleteEntityMapper;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
 use Cycle\ORM\Select\Repository;
 use Cycle\ORM\EntityManagerInterface;
 use Cycle\ORM\Select;
@@ -23,11 +23,12 @@ use Ramsey\Uuid\UuidInterface;
 
 class AthleteCycleORMRepository extends Repository implements AthleteRepositoryInterface
 {
-    private const array RELATIONS = ['metadata', 'clubAthletes'];
+    private const array RELATIONS = ['metadata', 'clubAthletes', 'oAuthTokens'];
 
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
+        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
         private readonly PersistenceAthleteEntityToDomainAthleteEntityMapper $toDomainAthleteEntityMapper,
         private readonly DomainAthleteEntityToPersistenceAthleteEntityMapper $toPersistenceAthleteEntityMapper,
     ) {
@@ -81,23 +82,25 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
         if ($criteria->ids) {
             $query = $query->andWhere('id', 'IN', $criteria->ids);
         }
+
         if ($criteria->externalIds) {
             $query = $query->andWhere('metadata.external_id', 'IN', $criteria->externalIds);
         }
+
         if ($criteria->emails) {
             $query = $query->andWhere('email', 'IN', \array_map(static fn(EmailVO $email) => $email->getValue(), $criteria->emails));
         }
+
         if ($criteria->genders) {
             $query = $query->andWhere('gender', 'IN', \array_map(static fn(UserGenderEnum $gender) => $gender->name, $criteria->genders));
         }
+
         if ($criteria->clubIds) {
             $query = $query->andWhere('clubAthletes.club_id', 'IN', $criteria->clubIds);
         }
+
         if ($criteria->sorts) {
-            foreach ($criteria->sorts as $sort) {
-                /** @var SortCriteria $sort */
-                $query->orderBy($sort->field, $sort->direction->name);
-            }
+            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
         }
 
         $totalCountQuery = clone $query;
