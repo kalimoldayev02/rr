@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Post(path: '/api/auth/login', tags: ['Auth'])]
+#[OA\Post(path: '/api/auth/logout', tags: ['Auth'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: LogoutRequest::class))]
 #[ROA\SuccessfulResponse]
 #[ROA\NotFoundResponse]
