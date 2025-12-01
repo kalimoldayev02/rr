@@ -94,7 +94,7 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
         }
 
         /** @var OAuthTokenEntity $oAuthTokenEntity */
-        foreach ($domainAthleteEntity->getOAuthTokes() as $oAuthTokenEntity) {
+        foreach ($domainAthleteEntity->getOAuthTokens() as $oAuthTokenEntity) {
             if ($currentTokenEntity = $currentTokensMap[$oAuthTokenEntity->getId()->toString()] ?? null) {
                 $tokensToPersist[] = $currentTokenEntity;
             } else {

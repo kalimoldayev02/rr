@@ -19,7 +19,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class LogoutAction
 {
-    #[Route(route: '/api/auth/logout', name: 'auth.logout', methods: ['POST'], group: 'api')]
+    #[Route(route: '/api/auth/logout', name: 'auth.logout', methods: ['POST'], group: 'auth_api')]
     public function __invoke(
         LogoutRequest $request,
         LogoutCommandHandler $handler,

@@ -8,13 +8,13 @@ use Cycle\Migrations\Migration;
 
 class AthletesMetadataMigration extends Migration
 {
-    private const string TABLE_NAME = 'athletes_metadata';
+    private const string TABLE_NAME = 'athlete_metadata';
 
     public function up(): void
     {
         $this->table(self::TABLE_NAME)
             ->addColumn('user_id', 'uuid')
-            ->addColumn('external_id', 'string')
+            ->addColumn('external_id', 'bigint')
             ->setPrimaryKeys(['user_id'])
             ->addIndex(['external_id'], ['unique' => true])
             ->addForeignKey(['user_id'], 'users', ['id'], [

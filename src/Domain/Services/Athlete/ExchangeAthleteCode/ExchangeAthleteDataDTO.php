@@ -9,7 +9,7 @@ use App\Domain\Enums\User\UserGenderEnum;
 final readonly class ExchangeAthleteDataDTO
 {
     public function __construct(
-        public string $externalId,
+        public int $externalId,
         public UserGenderEnum $gender,
         public string $firstname,
         public string $lastname,

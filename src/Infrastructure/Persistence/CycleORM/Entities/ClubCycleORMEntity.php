@@ -18,8 +18,8 @@ class ClubCycleORMEntity
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         private UuidInterface $id,
-        #[Column(type: 'string', name: 'external_id')]
-        private string $externalId,
+        #[Column(type: 'bigInteger', name: 'external_id')]
+        private int $externalId,
         #[Column(type: 'string')]
         private string $name,
         #[Column(type: 'string', nullable: true)]
@@ -44,12 +44,12 @@ class ClubCycleORMEntity
         $this->id = $id;
     }
 
-    public function getExternalId(): string
+    public function getExternalId(): int
     {
         return $this->externalId;
     }
 
-    public function setExternalId(string $externalId): void
+    public function setExternalId(int $externalId): void
     {
         $this->externalId = $externalId;
     }

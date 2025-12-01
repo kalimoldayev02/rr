@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Framework\Bootloaders;
 
 use App\Endpoint\Http\Middlewares\ApiErrorHandlerMiddleware;
+use App\Endpoint\Http\Middlewares\AuthJwtMiddleware;
 use Spiral\Bootloader\Http\RoutesBootloader as BaseRoutesBootloader;
 use Spiral\Cookies\Middleware\CookiesMiddleware;
 use Spiral\Csrf\Middleware\CsrfMiddleware;
@@ -27,8 +28,8 @@ final class RoutesBootloader extends BaseRoutesBootloader
     protected function globalMiddleware(): array
     {
         return [
-            JsonPayloadMiddleware::class,
             HttpCollector::class,
+            JsonPayloadMiddleware::class,
             ApiErrorHandlerMiddleware::class,
         ];
     }
@@ -45,6 +46,10 @@ final class RoutesBootloader extends BaseRoutesBootloader
                 ValidationHandlerMiddleware::class,
             ],
             'api' => [
+                ValidationHandlerMiddleware::class,
+            ],
+            'auth_api' => [
+                AuthJwtMiddleware::class,
                 ValidationHandlerMiddleware::class,
             ],
         ];

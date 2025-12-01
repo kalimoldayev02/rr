@@ -14,7 +14,7 @@ class CreateClubsTableMigration extends Migration
     {
         $this->table(self::TABLE_NAME)
             ->addColumn('id', 'uuid')
-            ->addColumn('external_id', 'string')
+            ->addColumn('external_id', 'bigint')
             ->addColumn('name', 'string')
             ->addColumn('description', 'string', ['nullable' => true, 'default' => null])
             ->addIndex(['external_id'], ['unique' => true])

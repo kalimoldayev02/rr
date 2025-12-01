@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Services\Athlete\GetAthleteClubs;
 
-use App\Domain\Enums\Club\SportTypeEnum;
+use App\Domain\Enums\SportTypeEnum;
 use App\Domain\Exceptions\InfrastructureException;
 use App\Domain\Services\Athlete\GetAthleteClubs\ClubDTO;
 use App\Domain\Services\Athlete\GetAthleteClubs\GetAthleteClubsServiceInterface;
@@ -23,7 +23,7 @@ final readonly class GetAthleteClubsService implements GetAthleteClubsServiceInt
             $responseData = $this->stravaProvider->withToken($athleteAccessToken)->get(path: 'athlete/clubs');
 
             return \array_map(fn(object $club) => new ClubDTO(
-                id: (string) $club->id,
+                id: $club->id,
                 name: $club->name,
                 sportTypes: \array_map(fn(string $sportType) => $this->mapSportType(
                     sportType: $sportType,

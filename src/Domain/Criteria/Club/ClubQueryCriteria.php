@@ -6,7 +6,7 @@ namespace App\Domain\Criteria\Club;
 
 use App\Domain\Criteria\PaginationCriteria;
 use App\Domain\Criteria\SortCriteria;
-use App\Domain\Enums\Club\SportTypeEnum;
+use App\Domain\Enums\SportTypeEnum;
 use Ramsey\Uuid\UuidInterface;
 
 final readonly class ClubQueryCriteria implements ClubCriteriaInterface

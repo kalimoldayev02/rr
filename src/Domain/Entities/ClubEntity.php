@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entities;
 
-use App\Domain\Enums\Club\SportTypeEnum;
+use App\Domain\Enums\SportTypeEnum;
 use Ramsey\Uuid\UuidInterface;
 
 final class ClubEntity
@@ -14,7 +14,7 @@ final class ClubEntity
      */
     public function __construct(
         private readonly UuidInterface $id,
-        private readonly string $externalId,
+        private readonly int $externalId,
         private string $name,
         private ?string $description = null,
         private array $sportTypes,
@@ -25,7 +25,7 @@ final class ClubEntity
         return $this->id;
     }
 
-    public function getExternalId(): string
+    public function getExternalId(): int
     {
         return $this->externalId;
     }

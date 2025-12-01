@@ -21,6 +21,7 @@ final readonly class GetRegisterAthleteUrlAction
     public function __invoke(
         GetRegisterAthleteUrlQueryHandler $handler,
     ): GetRegisterAthleteUrlResponse {
+        dump(1);
         return new GetRegisterAthleteUrlResponse(
             url: $handler->handle(),
         );

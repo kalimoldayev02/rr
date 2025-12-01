@@ -30,6 +30,8 @@ final readonly class PersistenceAthleteEntityToDomainAthleteEntityMapper
             },
             password: $persistenceAthleteEntity->getPassword(),
             birthday: $persistenceAthleteEntity->getBirthday(),
+            createdAt: $persistenceAthleteEntity->getCreatedAt(),
+            updatedAt: $persistenceAthleteEntity->getUpdatedAt(),
         );
 
         foreach ($persistenceAthleteEntity->getClubAthletes() as $clubAthleteEntity) {
@@ -37,7 +39,7 @@ final readonly class PersistenceAthleteEntityToDomainAthleteEntityMapper
         }
 
         foreach ($persistenceAthleteEntity->getOAuthTokens() as $oAuthTokenEntity) {
-            $domainAthleteEntity->getOAuthTokes()->add($this->toDomainOAuthTokenEntityMapper->map($oAuthTokenEntity));
+            $domainAthleteEntity->getOAuthTokens()->add($this->toDomainOAuthTokenEntityMapper->map($oAuthTokenEntity));
         }
 
         return $domainAthleteEntity;

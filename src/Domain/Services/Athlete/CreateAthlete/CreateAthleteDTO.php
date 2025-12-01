@@ -13,7 +13,7 @@ final readonly class CreateAthleteDTO
     public function __construct(
         public UuidInterface $id,
         public string $email,
-        public string $externalId,
+        public int $externalId,
         public string $firstname,
         public string $lastname,
         public UserGenderEnum $gender,

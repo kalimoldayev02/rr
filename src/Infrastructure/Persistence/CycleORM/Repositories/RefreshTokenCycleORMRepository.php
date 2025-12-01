@@ -9,8 +9,8 @@ use App\Domain\Entities\RefreshTokenEntity;
 use App\Domain\Exceptions\RefreshToken\RefreshTokenNotFoundException;
 use App\Domain\Repositories\RefreshTokenRepositoryInterface;
 use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Mappers\RefreshToken\RefreshTokenCriteriaMapperInterface;
 use App\Infrastructure\Persistence\CycleORM\Entities\RefreshTokenCycleORMEntity;
-use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
 use Cycle\ORM\EntityManagerInterface;
 use Cycle\ORM\Select;
 use Cycle\ORM\Select\Repository;
@@ -24,7 +24,7 @@ class RefreshTokenCycleORMRepository extends Repository implements RefreshTokenR
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
+        private readonly RefreshTokenCriteriaMapperInterface $criteriaMapper,
         private readonly DomainRefreshTokenEntityToPersistenceRefreshTokenEntityMapper $toPersistenceRefreshTokenEntityMapper,
         private readonly PersistenceTokenEntityToDomainTokenEntityMapper $toDomainRefreshTokenEntityMapper,
     ) {
@@ -55,36 +55,20 @@ class RefreshTokenCycleORMRepository extends Repository implements RefreshTokenR
 
     public function getByCriteria(RefreshTokenCriteriaInterface $criteria): RefreshTokenCollection
     {
-        $query = $this->select();
+        $select = $this->criteriaMapper->getSelect($criteria, $this->select());
 
-        if ($criteria->userIds) {
-            $query = $query->andWhere('user_id', 'IN', $criteria->userIds);
-        }
-
-        if ($criteria->tokens) {
-            $query = $query->andWhere('token', 'IN', $criteria->tokens);
-        }
-
-        if ($criteria->toExpiresAt) {
-            $query = $query->andWhere('expires_at', '<=', $criteria->toExpiresAt);
-        }
-
-        if ($criteria->sorts) {
-            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
-        }
-
-        $totalCountQuery = clone $query;
+        $totalCountQuery = clone $select;
         if ($criteria->pagination) {
             $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
-            $query->limit($criteria->pagination->pageSize)->offset($offset);
+            $select->limit($criteria->pagination->pageSize)->offset($offset);
         }
 
-        $data = \array_map(fn(RefreshTokenCycleORMEntity $refreshTokenEntity) => $this->toDomainRefreshTokenEntityMapper->map(
-            persistenceRefreshTokenEntity: $refreshTokenEntity,
-        ), $query->fetchAll());
+        $data = $select->fetchAll();
 
         return new RefreshTokenCollection(
-            data: $data,
+            data: \array_map(fn(RefreshTokenCycleORMEntity $refreshTokenEntity) => $this->toDomainRefreshTokenEntityMapper->map(
+                persistenceRefreshTokenEntity: $refreshTokenEntity,
+            ), $data),
             pagination: new PaginationVO(
                 page: $criteria->pagination?->page ?? 1,
                 pageSize: $criteria->pagination?->pageSize ?? \count($data),

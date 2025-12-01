@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Infrastructure\Services\Athlete\ExchangeAthleteCode;
 
 use App\Domain\Enums\User\UserGenderEnum;
+use App\Domain\Exceptions\Auth\InvalidTokenException;
 use App\Domain\Exceptions\InfrastructureException;
+use App\Domain\Exceptions\TooManyRequestsException;
 use App\Infrastructure\Exceptions\HttpClientProviderException;
 use App\Infrastructure\Providers\Strava\StravaProvider;
 use App\Infrastructure\Providers\Strava\StravaProviderConfig;
@@ -21,6 +23,11 @@ final readonly class ExchangeAthleteCodeService implements ExchangeAthleteCodeIn
         private StravaProvider $stravaProvider,
     ) {}
 
+    /**
+     * @throws InvalidTokenException
+     * @throws TooManyRequestsException
+     * @throws InfrastructureException
+     */
     public function exchange(string $code): ExchangeAthleteDataDTO
     {
         try {
@@ -37,7 +44,7 @@ final readonly class ExchangeAthleteCodeService implements ExchangeAthleteCodeIn
         $this->logger->info('Exchange code', ['data' => $response]);
 
         return new ExchangeAthleteDataDTO(
-            externalId: (string) $response->athlete->id,
+            externalId: $response->athlete->id,
             gender: match ($response->athlete->sex) {
                 'M' => UserGenderEnum::male,
                 'F' => UserGenderEnum::female,

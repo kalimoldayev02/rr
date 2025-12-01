@@ -16,13 +16,11 @@ final class LoggingBootloader extends Bootloader
     public function init(MonologBootloader $monolog, EnvironmentInterface $env): void
     {
         // socket
-        if ($env->get('LOG_SOCKET_HOST')) {
+        if (!is_null($env->get('MONOLOG_SOCKET_URL'))) {
             $monolog->addHandler(
                 'socket',
                 handler: new SocketHandler(
-                    connectionString: $env->get('LOG_SOCKET_HOST'),
-                    level: $env->get('LOG_LEVEL', 'info'),
-                    chunkSize: 10,
+                    connectionString: $env->get('MONOLOG_SOCKET_URL'),
                 )->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_NEWLINES)),
             );
         }
@@ -32,7 +30,6 @@ final class LoggingBootloader extends Bootloader
             'stderr',
             handler: new StreamHandler(
                 stream: 'php://stderr',
-                level: $env->get('LOG_LEVEL', 'info'),
             )->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_NEWLINES)),
         );
     }

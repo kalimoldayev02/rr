@@ -16,9 +16,9 @@ class CreateRefreshTokensTableMigration extends Migration
             ->addColumn('id', 'uuid')
             ->addColumn('user_id', 'uuid')
             ->addColumn('token', 'text')
-            ->addColumn('expires_at', 'timestamptz')
-            ->addColumn('created_at', 'timestamptz', ['default' => 'CURRENT_TIMESTAMP'])
-            ->addColumn('updated_at', 'timestamptz', ['default' => 'CURRENT_TIMESTAMP'])
+            ->addColumn('expires_at', 'timestamp')
+            ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+            ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
             ->setPrimaryKeys(['id'])
             ->addForeignKey(['user_id'], 'users', ['id'], [
                 'cascade' => true,

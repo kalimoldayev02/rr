@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Criteria;
 
-use App\Domain\Enums\SortDirectionEnum;
+use App\Domain\Enums\Sort\SortDirectionEnum;
 
 final readonly class SortCriteria
 {

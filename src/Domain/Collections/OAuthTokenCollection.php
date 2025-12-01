@@ -12,7 +12,7 @@ final class OAuthTokenCollection extends AbstractCollection
 {
     public function getType(): string
     {
-        return 'App\Domain\Entities\OAuthTokenEntity';
+        return OAuthTokenEntity::class;
     }
 
     public function getByProvider(OAuthTokenProviderEnum $provider): ?OAuthTokenEntity
@@ -24,5 +24,14 @@ final class OAuthTokenCollection extends AbstractCollection
             }
         }
         return null;
+    }
+
+    public function replace(OAuthTokenEntity $oAuthTokenEntity): void
+    {
+        foreach ($this->toArray() as $key => $item) {
+            if ($item->getProvider() === $oAuthTokenEntity->getProvider()) {
+                $this->data[$key] = $oAuthTokenEntity;
+            }
+        }
     }
 }

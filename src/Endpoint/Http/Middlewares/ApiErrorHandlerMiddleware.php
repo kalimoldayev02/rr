@@ -33,7 +33,7 @@ final readonly class ApiErrorHandlerMiddleware implements MiddlewareInterface
                 'method' => $request->getMethod(),
             ]);
 
-            $statusCode = $this->handler->getHttpStatusCode($exception);
+            $statusCode = $exception->getCode() != 0 ? $exception->getCode() : $this->handler->getHttpStatusCode($exception);
 
             $body = $this->renderer->render(exception: $exception);
 

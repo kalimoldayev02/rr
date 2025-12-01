@@ -9,15 +9,15 @@ use Cycle\Annotated\Annotation\Entity;
 use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
 
-#[Entity(table: 'athletes_metadata')]
+#[Entity(table: 'athlete_metadata')]
 #[Uuid7(field: 'userId', nullable: false)]
 class AthleteMetadataCycleORMEntity
 {
     public function __construct(
         #[Column(type: 'uuid', name: 'user_id', primary: true)]
         private UuidInterface $userId,
-        #[Column(type: 'string', name: 'external_id')]
-        private string $externalId,
+        #[Column(type: 'bigInteger', name: 'external_id')]
+        private int $externalId,
     ) {}
 
     public function getUserId(): UuidInterface
@@ -30,12 +30,12 @@ class AthleteMetadataCycleORMEntity
         $this->userId = $userId;
     }
 
-    public function getExternalId(): string
+    public function getExternalId(): int
     {
         return $this->externalId;
     }
 
-    public function setExternalId(string $externalId): void
+    public function setExternalId(int $externalId): void
     {
         $this->externalId = $externalId;
     }

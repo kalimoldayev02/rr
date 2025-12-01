@@ -7,13 +7,11 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 use App\Domain\Collections\UserCollection;
 use App\Domain\Criteria\User\UserQueryCriteria;
 use App\Domain\Entities\UserEntity;
-use App\Domain\Enums\User\UserGenderEnum;
 use App\Domain\Exceptions\User\UserNotFoundException;
 use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Mappers\User\UserCriteriaMapperInterface;
 use App\Infrastructure\Persistence\CycleORM\Entities\UserCycleORMEntity;
-use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
 use App\Infrastructure\Persistence\CycleORM\Mappers\User\DomainUserEntityToPersistenceUserEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\User\PersistenceUserEntityToDomainUserEntityMapper;
 use Cycle\ORM\EntityManagerInterface;
@@ -26,7 +24,7 @@ class UserCycleORMRepository extends Repository implements UserRepositoryInterfa
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
+        private readonly UserCriteriaMapperInterface $criteriaMapper,
         private readonly PersistenceUserEntityToDomainUserEntityMapper $toDomainUserMapper,
         private readonly DomainUserEntityToPersistenceUserEntityMapper $toPersistenceUserMapper,
     ) {
@@ -82,34 +80,21 @@ class UserCycleORMRepository extends Repository implements UserRepositoryInterfa
 
     public function getByCriteria(UserQueryCriteria $criteria): UserCollection
     {
-        $query = $this->select();
+        $select = $this->criteriaMapper->getSelect($criteria, $this->select());
 
-        if ($criteria->ids) {
-            $query = $query->andWhere('id', 'IN', $criteria->ids);
-        }
-        if ($criteria->emails) {
-            $query = $query->andWhere('email', 'IN', \array_map(static fn(EmailVO $email) => $email->getValue(), $criteria->emails));
-        }
-        if ($criteria->genders) {
-            $query = $query->andWhere('gender', 'IN', \array_map(static fn(UserGenderEnum $gender) => $gender->name, $criteria->genders));
-        }
 
-        if ($criteria->sorts) {
-            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
-        }
-
-        $totalCountQuery = clone $query;
+        $totalCountQuery = clone $select;
         if ($criteria->pagination) {
             $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
-            $query->limit($criteria->pagination->pageSize)->offset($offset);
+            $select->limit($criteria->pagination->pageSize)->offset($offset);
         }
 
-        $data = \array_map(fn(UserCycleORMEntity $userEntity) => $this->toDomainUserMapper->map(
-            persistenceUserEntity: $userEntity,
-        ), $query->fetchAll());
+        $data = $select->fetchAll();
 
         return new UserCollection(
-            data: $data,
+            data: \array_map(fn(UserCycleORMEntity $userEntity) => $this->toDomainUserMapper->map(
+                persistenceUserEntity: $userEntity,
+            ), $data),
             pagination: new PaginationVO(
                 page: $criteria->pagination?->page ?? 1,
                 pageSize: $criteria->pagination?->pageSize ?? \count($data),

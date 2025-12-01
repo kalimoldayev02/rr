@@ -18,12 +18,14 @@ final class AthleteEntity
     public function __construct(
         private readonly UuidInterface $id,
         private EmailVO $email,
-        private readonly string $externalId,
+        private readonly int $externalId,
         private string $firstname,
         private string $lastname,
         private UserGenderEnum $gender,
         private string $password,
         private ?\DateTimeImmutable $birthday = null,
+        private ?\DateTimeImmutable $createdAt = null,
+        private ?\DateTimeImmutable $updatedAt = null,
     ) {
         $this->clubIds = new ClubIdCollection();
         $this->oAuthTokens = new OAuthTokenCollection();
@@ -44,7 +46,7 @@ final class AthleteEntity
         $this->email = $email;
     }
 
-    public function getExternalId(): string
+    public function getExternalId(): int
     {
         return $this->externalId;
     }
@@ -109,7 +111,7 @@ final class AthleteEntity
         $this->clubIds = $clubIds;
     }
 
-    public function getOAuthTokes(): OAuthTokenCollection
+    public function getOAuthTokens(): OAuthTokenCollection
     {
         return $this->oAuthTokens;
     }
@@ -117,5 +119,15 @@ final class AthleteEntity
     public function setOAuthTokens(OAuthTokenCollection $oAuthTokens): void
     {
         $this->oAuthTokens = $oAuthTokens;
+    }
+
+    public function getCreateAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function updatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 }

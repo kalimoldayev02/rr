@@ -9,7 +9,7 @@ use Cycle\Annotated\Annotation\Entity;
 use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
 
-#[Entity(table: 'clubs_athletes')]
+#[Entity(table: 'club_athletes')]
 #[Uuid7(field: 'clubId', nullable: false)]
 #[Uuid7(field: 'userId', nullable: false)]
 class ClubAthleteCycleORMEntity

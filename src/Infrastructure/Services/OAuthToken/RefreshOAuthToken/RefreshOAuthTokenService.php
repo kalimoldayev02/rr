@@ -19,7 +19,7 @@ final readonly class RefreshOAuthTokenService implements RefreshOAuthTokenServic
         private StravaProviderConfig $stravaProviderConfig,
     ) {}
 
-    public function refresh(OAuthTokenEntity $oAuthTokenEntity): OAuthTokenEntity
+    public function get(OAuthTokenEntity $oAuthTokenEntity): OAuthTokenEntity
     {
         try {
             $response = $this->stravaProvider->post(path: 'oauth/token', data: new \stdClass(), query: [
@@ -28,8 +28,6 @@ final readonly class RefreshOAuthTokenService implements RefreshOAuthTokenServic
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $oAuthTokenEntity->getRefreshToken(),
             ]);
-
-
         } catch (HttpClientProviderException $exception) {
             throw new InfrastructureException($exception->getMessage());
         }

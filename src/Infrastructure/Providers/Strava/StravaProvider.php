@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Providers\Strava;
 
+use App\Domain\Exceptions\Auth\InvalidTokenException;
+use App\Domain\Exceptions\TooManyRequestsException;
 use App\Infrastructure\Exceptions\HttpClientProviderException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -40,29 +42,47 @@ final class StravaProvider
         return $clone;
     }
 
+    /**
+     * @throws InvalidTokenException
+     * @throws TooManyRequestsException
+     * @throws HttpClientProviderException
+     */
     public function get(string $path, array $query = []): mixed
     {
         try {
             $response = $this->httpClient->request('GET', $path, ['query' => $query]);
 
             return \json_decode($response->getContent(), flags: JSON_THROW_ON_ERROR);
-        } catch (ClientExceptionInterface|ServerExceptionInterface|RedirectionExceptionInterface|TransportExceptionInterface $e) {
-            throw new HttpClientProviderException('[RR<-Strava] ' . $e->getMessage());
+        } catch (ClientExceptionInterface|ServerExceptionInterface|RedirectionExceptionInterface|TransportExceptionInterface $exception) {
+            if ($exception->getCode() === 401) {
+                throw new InvalidTokenException();
+            }
+            if ($exception->getCode() === 429) {
+                throw new TooManyRequestsException();
+            }
+            throw new HttpClientProviderException('[RR<-Strava] ' . $exception->getMessage());
         }
     }
 
+    /**
+     * @throws InvalidTokenException
+     * @throws TooManyRequestsException
+     * @throws HttpClientProviderException
+     */
     public function post(string $path, object $data, array $query = []): ?\stdClass
     {
         try {
             $response = $this->httpClient->request('POST', $path, ['json' => $data, 'query' => $query]);
 
             return \json_decode($response->getContent());
-        } catch (RedirectionExceptionInterface|TransportExceptionInterface $e) {
-            throw new HttpClientProviderException('[RR<-Strava] ' . $e->getMessage());
-        } catch (ClientExceptionInterface|ServerExceptionInterface $e) {
-            $message = $e->getResponse()->getContent();
-
-            throw new HttpClientProviderException("[RR<-Strava] response (`$path`) error: " . $message, $e->getCode() ?? 0);
+        } catch (ClientExceptionInterface|ServerExceptionInterface|RedirectionExceptionInterface|TransportExceptionInterface $exception) {
+            if ($exception->getCode() === 401) {
+                throw new InvalidTokenException();
+            }
+            if ($exception->getCode() === 429) {
+                throw new TooManyRequestsException();
+            }
+            throw new HttpClientProviderException('[RR<-Strava] ' . $exception->getMessage());
         }
     }
 }

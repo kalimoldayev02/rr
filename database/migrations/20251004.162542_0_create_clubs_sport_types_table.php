@@ -8,7 +8,7 @@ use Cycle\Migrations\Migration;
 
 class CreateClubsSportTypesTableMigration extends Migration
 {
-    private const string TABLE_NAME = 'clubs_sport_types';
+    private const string TABLE_NAME = 'club_sport_types';
 
     public function up(): void
     {

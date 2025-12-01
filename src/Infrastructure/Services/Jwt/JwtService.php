@@ -63,10 +63,10 @@ final readonly class JwtService implements JwtServiceInterface
                 token: $accessToken,
                 expiresAt: new \DateTimeImmutable("@{$decoded->exp}"),
             );
-        } catch (ExpiredException $e) {
+        } catch (ExpiredException) {
             throw new TokenExpiredException();
-        } catch (BeforeValidException | \Exception $e) {
-            throw new InvalidTokenException($e->getMessage());
+        } catch (BeforeValidException|\Exception $exception) {
+            throw new InvalidTokenException($exception->getMessage());
         }
     }
 }

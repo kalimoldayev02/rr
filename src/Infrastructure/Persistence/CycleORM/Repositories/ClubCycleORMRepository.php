@@ -7,18 +7,18 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 use App\Domain\Collections\ClubCollection;
 use App\Domain\Criteria\Club\ClubCriteriaInterface;
 use App\Domain\Entities\ClubEntity;
-use App\Domain\Enums\Club\SportTypeEnum;
+use App\Domain\Enums\SportTypeEnum;
 use App\Domain\Exceptions\Club\ClubNotFoundException;
 use App\Domain\Repositories\ClubRepositoryInterface;
 use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Mappers\Club\ClubCriteriaMapperInterface;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Club\DomainClubEntityToPersistenceClubEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Club\PersistenceClubEntityToDomainClubEntityMapper;
-use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
-use Cycle\ORM\Select\Repository;
 use Cycle\ORM\EntityManagerInterface;
 use Cycle\ORM\Select;
+use Cycle\ORM\Select\Repository;
 use Ramsey\Uuid\UuidInterface;
 
 class ClubCycleORMRepository extends Repository implements ClubRepositoryInterface
@@ -28,7 +28,7 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
+        private readonly ClubCriteriaMapperInterface $criteriaMapper,
         private readonly PersistenceClubEntityToDomainClubEntityMapper $toDomainClubEntityMapper,
         private readonly DomainClubEntityToPersistenceClubEntityMapper $toPersistenceClubEntityMapper,
     ) {
@@ -71,36 +71,20 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
 
     public function getByCriteria(ClubCriteriaInterface $criteria): ClubCollection
     {
-        $query = $this->select()->load(self::RELATIONS);
+        $select = $this->criteriaMapper->getSelect($criteria, $this->select()->load(self::RELATIONS));
 
-        if ($criteria->ids) {
-            $query = $query->andWhere('id', 'IN', $criteria->ids);
-        }
-
-        if ($criteria->externalIds) {
-            $query = $query->andWhere('external_id', 'IN', $criteria->externalIds);
-        }
-
-        if ($criteria->sportTypes) {
-            $query = $query->andWhere('sportTypes.type', 'IN', \array_map(static fn(SportTypeEnum $sportType) => $sportType->name, $criteria->sportTypes));
-        }
-
-        if ($criteria->sorts) {
-            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
-        }
-
-        $totalCountQuery = clone $query;
+        $totalCountQuery = clone $select;
         if ($criteria->pagination) {
             $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
-            $query->limit($criteria->pagination->pageSize)->offset($offset);
+            $select->limit($criteria->pagination->pageSize)->offset($offset);
         }
 
-        $data = \array_map(fn(ClubCycleORMEntity $clubEntity) => $this->toDomainClubEntityMapper->map(
-            persistenceClubEntity: $clubEntity,
-        ), $query->fetchAll());
+        $data = $select->fetchAll();
 
         return new ClubCollection(
-            data: $data,
+            data: \array_map(fn(ClubCycleORMEntity $clubEntity) => $this->toDomainClubEntityMapper->map(
+                persistenceClubEntity: $clubEntity,
+            ), $data),
             pagination: new PaginationVO(
                 page: $criteria->pagination?->page ?? 1,
                 pageSize: $criteria->pagination?->pageSize ?? \count($data),

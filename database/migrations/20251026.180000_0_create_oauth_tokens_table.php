@@ -18,7 +18,7 @@ class CreateOauthTokensTableMigration extends Migration
             ->addColumn('provider', 'string')
             ->addColumn('access_token', 'text')
             ->addColumn('refresh_token', 'text')
-            ->addColumn('expires_at', 'timestamptz')
+            ->addColumn('expires_at', 'timestamp')
             ->setPrimaryKeys(['id'])
             ->addForeignKey(['user_id'], 'users', ['id'], [
                 'delete' => 'CASCADE',

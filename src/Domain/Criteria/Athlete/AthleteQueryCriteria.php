@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Criteria\Athlete;
 
+use App\Domain\Criteria\OAuthToken\OAuthTokenCriteriaInterface;
 use App\Domain\Criteria\PaginationCriteria;
 use App\Domain\Criteria\SortCriteria;
 use App\Domain\Enums\User\UserGenderEnum;
@@ -26,6 +27,7 @@ final readonly class AthleteQueryCriteria implements AthleteCriteriaInterface
         public ?array $genders = null,
         public ?array $externalIds = null,
         public ?array $sorts = null,
+        public ?OAuthTokenCriteriaInterface $oAuthTokenCriteria = null,
         public ?PaginationCriteria $pagination = null,
     ) {}
 }

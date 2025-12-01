@@ -137,6 +137,15 @@ class Kernel extends \Spiral\Framework\Kernel
 
             // Configure a project by DDD
             InfrastructureBootloaders\ScaffolderBootloader::class,
+
+            // Criteria
+            InfrastructureBootloaders\CriteriaBootloader::class,
+
+            // Services
+            InfrastructureBootloaders\ServicesBootloader::class,
+
+            // Repositories
+            InfrastructureBootloaders\RepositoryBootloader::class,
         ];
     }
 
@@ -144,12 +153,6 @@ class Kernel extends \Spiral\Framework\Kernel
     public function defineAppBootloaders(): array
     {
         return [
-            // Repositories
-            InfrastructureBootloaders\RepositoryBootloader::class,
-
-            // Services
-            InfrastructureBootloaders\ServicesBootloader::class,
-
             // Application domain
             InfrastructureBootloaders\AppBootloader::class,
         ];

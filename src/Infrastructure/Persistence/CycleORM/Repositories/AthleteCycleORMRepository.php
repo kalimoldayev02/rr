@@ -7,15 +7,13 @@ namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 use App\Domain\Collections\AthleteCollection;
 use App\Domain\Criteria\Athlete\AthleteCriteriaInterface;
 use App\Domain\Entities\AthleteEntity;
-use App\Domain\Enums\User\UserGenderEnum;
 use App\Domain\Exceptions\Athlete\AthleteNotFoundException;
 use App\Domain\Repositories\AthleteRepositoryInterface;
-use App\Domain\ValueObjects\EmailVO;
 use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Mappers\Athlete\AthleteCriteriaMapperInterface;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\DomainAthleteEntityToPersistenceAthleteEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Athlete\PersistenceAthleteEntityToDomainAthleteEntityMapper;
-use App\Infrastructure\Persistence\CycleORM\Mappers\Sort\SortsCriteriaToCycleOrmSelect;
 use Cycle\ORM\Select\Repository;
 use Cycle\ORM\EntityManagerInterface;
 use Cycle\ORM\Select;
@@ -28,7 +26,7 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
     public function __construct(
         Select $select,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SortsCriteriaToCycleOrmSelect $toSortSelectMapper,
+        private readonly AthleteCriteriaMapperInterface $criteriaMapper,
         private readonly PersistenceAthleteEntityToDomainAthleteEntityMapper $toDomainAthleteEntityMapper,
         private readonly DomainAthleteEntityToPersistenceAthleteEntityMapper $toPersistenceAthleteEntityMapper,
     ) {
@@ -77,44 +75,20 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
 
     public function getByCriteria(AthleteCriteriaInterface $criteria): AthleteCollection
     {
-        $query = $this->select()->load(self::RELATIONS);
+        $select = $this->criteriaMapper->getSelect($criteria, $this->select()->load(self::RELATIONS));
 
-        if ($criteria->ids) {
-            $query = $query->andWhere('id', 'IN', $criteria->ids);
-        }
-
-        if ($criteria->externalIds) {
-            $query = $query->andWhere('metadata.external_id', 'IN', $criteria->externalIds);
-        }
-
-        if ($criteria->emails) {
-            $query = $query->andWhere('email', 'IN', \array_map(static fn(EmailVO $email) => $email->getValue(), $criteria->emails));
-        }
-
-        if ($criteria->genders) {
-            $query = $query->andWhere('gender', 'IN', \array_map(static fn(UserGenderEnum $gender) => $gender->name, $criteria->genders));
-        }
-
-        if ($criteria->clubIds) {
-            $query = $query->andWhere('clubAthletes.club_id', 'IN', $criteria->clubIds);
-        }
-
-        if ($criteria->sorts) {
-            $query = $this->toSortSelectMapper->map($query, $criteria->sorts);
-        }
-
-        $totalCountQuery = clone $query;
+        $totalCountQuery = clone $select;
         if ($criteria->pagination) {
             $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
-            $query->limit($criteria->pagination->pageSize)->offset($offset);
+            $select->limit($criteria->pagination->pageSize)->offset($offset);
         }
 
-        $data = \array_map(fn(AthleteCycleORMEntity $athleteEntity) => $this->toDomainAthleteEntityMapper->map(
-            persistenceAthleteEntity: $athleteEntity,
-        ), $query->fetchAll());
+        $data = $select->fetchAll();
 
         return new AthleteCollection(
-            data: $data,
+            data: \array_map(fn(AthleteCycleORMEntity $athleteEntity) => $this->toDomainAthleteEntityMapper->map(
+                persistenceAthleteEntity: $athleteEntity,
+            ), $data),
             pagination: new PaginationVO(
                 page: $criteria->pagination?->page ?? 1,
                 pageSize: $criteria->pagination?->pageSize ?? \count($data),

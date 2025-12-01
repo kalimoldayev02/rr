@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Collections;
 
+use App\Domain\Entities\UserEntity;
+
 final class UserCollection extends AbstractPaginatedCollection
 {
     public function getType(): string
     {
-        return 'App\Domain\Entities\UserEntity';
+        return UserEntity::class;
     }
 }

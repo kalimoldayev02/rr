@@ -9,14 +9,13 @@ use App\Domain\Criteria\Club\ClubQueryCriteria;
 use App\Domain\Entities\ClubEntity;
 use App\Domain\Enums\Token\OAuthTokenProviderEnum;
 use App\Domain\Exceptions\Athlete\OAuthTokenNotFoundException;
-use App\Domain\Exceptions\InfrastructureException;
 use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\Repositories\ClubRepositoryInterface;
 use App\Domain\Services\Athlete\GetAthleteClubs\ClubDTO;
 use App\Domain\Services\Athlete\GetAthleteClubs\GetAthleteClubsServiceInterface;
-use App\Domain\Services\OAuthToken\RefreshOAuthToken\RefreshOAuthTokenServiceInterface;
 use App\Domain\ValueObjects\IdVO;
 use Ramsey\Uuid\UuidInterface;
+use App\Domain\Services\OAuthToken\EnsureFreshOAuthToken\EnsureFreshOAuthTokenService;
 
 final readonly class SyncAthleteWithClubsService
 {
@@ -24,26 +23,19 @@ final readonly class SyncAthleteWithClubsService
         private AthleteRepositoryInterface $athleteRepository,
         private GetAthleteClubsServiceInterface $getAthleteClubsService,
         private ClubRepositoryInterface $clubRepository,
-        private RefreshOAuthTokenServiceInterface $refreshOAuthTokenService,
+        private EnsureFreshOAuthTokenService $ensureFreshOAuthTokenService,
     ) {}
 
     public function sync(UuidInterface $athleteId): void
     {
-        $needUpdate = false;
         $athleteEntity = $this->athleteRepository->getById($athleteId);
-        if (!$oAuthTokenEntity = $athleteEntity->getOAuthTokes()->getByProvider(OAuthTokenProviderEnum::strava)) {
+        if (!$oAuthTokenEntity = $athleteEntity->getOAuthTokens()->getByProvider(OAuthTokenProviderEnum::strava)) {
             throw new OAuthTokenNotFoundException();
         }
 
         if ($oAuthTokenEntity->isExpired()) {
-            try {
-                $newOAuthTokenEntity = $this->refreshOAuthTokenService->refresh($oAuthTokenEntity);
-            } catch (InfrastructureException $exception) {
-                throw new \DomainException($exception->getMessage());
-            }
-            $needUpdate = true;
-            $oAuthTokenEntity->setAccessToken($newOAuthTokenEntity->getAccessToken());
-            $oAuthTokenEntity->setExpiresAt($newOAuthTokenEntity->getExpiresAt());;
+            $oAuthTokenEntity = $this->ensureFreshOAuthTokenService->ensure($oAuthTokenEntity);
+            $athleteEntity->getOAuthTokens()->replace($oAuthTokenEntity);
         }
 
         $clubs = $this->getAthleteClubsService->get($oAuthTokenEntity->getAccessToken());
@@ -59,13 +51,10 @@ final readonly class SyncAthleteWithClubsService
         }
 
         if ($clubIds) {
-            $needUpdate = true;
             $athleteEntity->setClubIds(new ClubIdCollection($clubIds));
         }
 
-        if ($needUpdate) {
-            $this->athleteRepository->update($athleteEntity);
-        }
+        $this->athleteRepository->update($athleteEntity);
     }
 
     private function createClub(ClubDTO $club): ClubEntity

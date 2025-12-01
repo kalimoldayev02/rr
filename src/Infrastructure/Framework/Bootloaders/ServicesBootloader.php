@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Infrastructure\Framework\Bootloaders;
 
 use App\Application\Dispatchers\CommandDispatcher\CommandDispatcherInterface;
+use App\Domain\Services\Activity\SyncActivityDetail\GetActivityDetailExternalServiceInterface;
+use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
 use App\Domain\Services\Athlete\GetAthleteClubs\GetAthleteClubsServiceInterface;
+use App\Domain\Services\Athlete\GetRegisterAthleteUrl\GetRegisterAthleteUrlServiceInterface;
 use App\Domain\Services\Jwt\JwtServiceInterface;
 use App\Domain\Services\OAuthToken\RefreshOAuthToken\RefreshOAuthTokenServiceInterface;
 use App\Infrastructure\Dispatchers\CommandDispatcher\CommandDispatcher;
 use App\Infrastructure\Providers\ServiceConfigurator;
 use App\Infrastructure\Providers\ServiceConfiguratorInterface;
+use App\Infrastructure\Services\Activity\GetActivityDetail\GetActivityDetailService;
+use App\Infrastructure\Services\Activity\SyncActivities\GetActivitiesService;
 use App\Infrastructure\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeService;
 use App\Infrastructure\Services\Athlete\GetAthleteClubs\GetAthleteClubsService;
 use App\Infrastructure\Services\Athlete\GetRegisterAthleteUrl\GetRegisterAthleteUrlService;
@@ -19,15 +24,14 @@ use App\Infrastructure\Services\OAuthToken\RefreshOAuthToken\RefreshOAuthTokenSe
 use Predis\Client;
 use Predis\ClientInterface;
 use Spiral\Boot\Bootloader\Bootloader;
-use Spiral\Config\ConfiguratorInterface;
-use App\Domain\Services\Athlete\GetRegisterAthleteUrl\GetRegisterAthleteUrlServiceInterface;
-use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
+use Spiral\Boot\EnvironmentInterface;
+use App\Domain\Services\Activity\SyncActivities\GetActivitiesExternalServiceInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class ServicesBootloader extends Bootloader
 {
-    public function defineBindings(): array
+    public function defineSingletons(): array
     {
         return [
             ServiceConfiguratorInterface::class => ServiceConfigurator::class,
@@ -38,23 +42,17 @@ final class ServicesBootloader extends Bootloader
             CommandDispatcherInterface::class => CommandDispatcher::class,
             RefreshOAuthTokenServiceInterface::class => RefreshOAuthTokenService::class,
             JwtServiceInterface::class => JwtService::class,
-        ];
-    }
-
-    public function defineSingletons(): array
-    {
-        return [
-            ClientInterface::class => static function (ConfiguratorInterface $config): Client {
-                $redisConfig = $config->getConfig('redis');
-                $connectionConfig = $redisConfig['connections']['default'];
+            GetActivitiesExternalServiceInterface::class => GetActivitiesService::class,
+            GetActivityDetailExternalServiceInterface::class => GetActivityDetailService::class,
+            ClientInterface::class => static function (EnvironmentInterface $env): Client {
 
                 return new Client([
                     'scheme' => 'tcp',
-                    'host' => $connectionConfig['host'],
-                    'port' => $connectionConfig['port'],
-                    'database' => $connectionConfig['database'] ?? 0,
-                    'password' => $connectionConfig['password'] ?? null,
-                ], $connectionConfig['options'] ?? []);
+                    'host' => $env->get('REDIS_HOST'),
+                    'port' => $env->get('REDIS_PORT', 6379),
+                    'database' => $env->get('REDIS_DB', 0),
+                    'password' => $env->get('REDIS_PASSWORD'),
+                ]);
             },
         ];
     }
