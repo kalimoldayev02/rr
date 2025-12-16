@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\CycleORM\Entities;
 
+use App\Infrastructure\Persistence\CycleORM\Repositories\DistanceReferenceCycleORMRepository;
 use Cycle\Annotated\Annotation\Column;
 use Cycle\Annotated\Annotation\Entity;
 use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
 
-#[Entity(table: 'distance_references')]
+#[Entity(repository: DistanceReferenceCycleORMRepository::class, table: 'distance_references')]
 #[Uuid7(field: 'id', nullable: false)]
 class DistanceReferenceCycleORMEntity
 {

@@ -6,7 +6,7 @@ namespace App\Application\UseCases\Command\Event\UpdateEventResult;
 
 use App\Domain\Exceptions\AccessForbiddenException;
 use App\Domain\Exceptions\Event\EventResultNotFoundException;
-use App\Domain\Repositories\AthleteRepositoryInterface;
+use App\Domain\Repositories\ActivityRepositoryInterface;
 use App\Domain\Repositories\DistanceReferenceRepositoryInterface;
 use App\Domain\Repositories\EventRepositoryInterface;
 
@@ -14,7 +14,7 @@ final readonly class UpdateEventResultCommandHandler
 {
     public function __construct(
         private EventRepositoryInterface $eventRepository,
-        private AthleteRepositoryInterface $athleteRepository,
+        private ActivityRepositoryInterface $activityRepository,
         private DistanceReferenceRepositoryInterface $distanceReferenceRepository,
     ) {}
 
@@ -22,10 +22,13 @@ final readonly class UpdateEventResultCommandHandler
     {
         $distanceEntity = $this->distanceReferenceRepository->getById($command->distanceId);
         $eventAggregate = $this->eventRepository->getById($command->eventId);
-        $athleteEntity = $this->athleteRepository->getById($command->athleteId);
+        $activityEntity = null;
 
-        if (!$athleteEntity->getClubIds()->contains($eventAggregate->getClubId())) {
-            throw new AccessForbiddenException('Athlete does not belong to the event club');
+        if ($command->activityId) {
+            $activityEntity = $this->activityRepository->getById($command->activityId);
+            if (!$activityEntity->getAthleteId()->equals($command->athleteId)) {
+                throw new AccessForbiddenException('Athlete does not belong to the event activity athlete');
+            }
         }
 
         if (!$eventResultEntity = $eventAggregate->getResult()->getById($command->eventResultId)) {
@@ -36,7 +39,7 @@ final readonly class UpdateEventResultCommandHandler
         }
 
         $eventResultEntity->setDuration($command->duration);
-        $eventResultEntity->setActivityId($command->activityId);
+        $eventResultEntity->setActivityId($activityEntity?->getId() ?? null);
         $eventResultEntity->setDistanceReferenceId($distanceEntity->getId());
 
         $this->eventRepository->update($eventAggregate);

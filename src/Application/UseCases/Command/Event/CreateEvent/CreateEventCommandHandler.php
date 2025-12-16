@@ -9,8 +9,8 @@ use App\Domain\Aggregates\EventAggregate;
 use App\Domain\Exceptions\AccessForbiddenException;
 use App\Domain\Repositories\EventRepositoryInterface;
 use App\Domain\ValueObjects\IdVO;
-use src\Application\Enums\Access\PermissionEnum;
-use src\Application\Enums\Access\RoleEnum;
+use App\Application\Enums\Access\PermissionEnum;
+use App\Application\Enums\Access\RoleEnum;
 
 final readonly class CreateEventCommandHandler
 {

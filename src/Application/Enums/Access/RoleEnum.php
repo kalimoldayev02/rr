@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace src\Application\Enums\Access;
+namespace App\Application\Enums\Access;
 
 enum RoleEnum
 {
     case event;
+    case reference;
 }

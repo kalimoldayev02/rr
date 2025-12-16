@@ -10,6 +10,8 @@ use App\Infrastructure\Mappers\Athlete\AthleteCriteriaMapper;
 use App\Infrastructure\Mappers\Athlete\AthleteCriteriaMapperInterface;
 use App\Infrastructure\Mappers\Club\ClubCriteriaMapper;
 use App\Infrastructure\Mappers\Club\ClubCriteriaMapperInterface;
+use App\Infrastructure\Mappers\Reference\DistanceReference\DistanceReferenceCriteriaMapper;
+use App\Infrastructure\Mappers\Reference\DistanceReference\DistanceReferenceCriteriaMapperInterface;
 use App\Infrastructure\Mappers\RefreshToken\RefreshTokenCriteriaMapper;
 use App\Infrastructure\Mappers\RefreshToken\RefreshTokenCriteriaMapperInterface;
 use App\Infrastructure\Mappers\User\UserCriteriaMapper;
@@ -27,6 +29,7 @@ final class CriteriaBootloader extends Bootloader
             ClubCriteriaMapperInterface::class => ClubCriteriaMapper::class,
             UserCriteriaMapperInterface::class => UserCriteriaMapper::class,
             RefreshTokenCriteriaMapperInterface::class => RefreshTokenCriteriaMapper::class,
+            DistanceReferenceCriteriaMapperInterface::class => DistanceReferenceCriteriaMapper::class,
         ];
     }
 }
