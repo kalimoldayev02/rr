@@ -17,8 +17,8 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
     {
         $persistenceAthleteEntity->setId($domainAthleteEntity->getId());
         $persistenceAthleteEntity->setEmail($domainAthleteEntity->getEmail()->getValue());
-        $persistenceAthleteEntity->setFirstName($domainAthleteEntity->getFirstName());
-        $persistenceAthleteEntity->setLastName($domainAthleteEntity->getLastName());
+        $persistenceAthleteEntity->setFirstName($domainAthleteEntity->getFirstname());
+        $persistenceAthleteEntity->setLastName($domainAthleteEntity->getLastname());
         $persistenceAthleteEntity->setGender($domainAthleteEntity->getGender()->name);
         $persistenceAthleteEntity->setBirthday($domainAthleteEntity->getBirthday());
         $persistenceAthleteEntity->setPassword($domainAthleteEntity->getPassword());

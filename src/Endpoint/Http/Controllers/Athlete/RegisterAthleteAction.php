@@ -14,6 +14,7 @@ use App\Endpoint\Http\Responses\Token\TokenResponse;
 use Spiral\Router\Annotation\Route;
 use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
+
 #[OA\Post(path: '/api/athlete/auth/register', tags: ['Athlete'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: RegisterAthleteRequest::class))]
 #[ROA\SuccessfulResponse(content: new OA\JsonContent(ref: TokenResponse::class))]

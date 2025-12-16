@@ -9,7 +9,7 @@ use Spiral\Filters\Attribute\NestedArray;
 
 trait SortRequestTrait
 {
-    #[NestedArray(class: SortRequest::class, input: new Query)]
+    #[NestedArray(class: SortRequest::class, input: new Query())]
     private ?array $sorts = null;
 
     public function getSorts(): ?array
