@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Mappers\Athlete;
+namespace App\Application\Mappers\User;
 
 use App\Application\Enums\User\UserGenderEnum;
 use App\Domain\Enums\User\UserGenderEnum as DomainAthleteGenderEnum;
 
-final readonly class ApplicationAthleteGenderToDomainAthleteGenderMapper
+final readonly class ApplicationUserGenderToDomainUserGenderMapper
 {
     public function map(UserGenderEnum $gender): DomainAthleteGenderEnum
     {

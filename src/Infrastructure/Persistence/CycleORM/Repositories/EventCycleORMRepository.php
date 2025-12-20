@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\CycleORM\Repositories;
 
 use App\Domain\Aggregates\EventAggregate;
+use App\Domain\Collections\EventCollection;
+use App\Domain\Criteria\Event\EventCriteriaInterface;
 use App\Domain\Exceptions\Event\EventNotFoundException;
 use App\Domain\Repositories\EventRepositoryInterface;
+use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Mappers\Event\EventCriteriaMapperInterface;
 use App\Infrastructure\Persistence\CycleORM\Entities\EventCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Event\Event\DomainEventAggregateToPersistenceEventEntityMapper;
 use App\Infrastructure\Persistence\CycleORM\Mappers\Event\Event\PersistenceEventEntityToDomainEventAggregateMapper;
@@ -24,6 +28,7 @@ class EventCycleORMRepository extends Repository implements EventRepositoryInter
         private readonly EntityManagerInterface $entityManager,
         private readonly PersistenceEventEntityToDomainEventAggregateMapper $toDomainEventAggregateMapper,
         private readonly DomainEventAggregateToPersistenceEventEntityMapper $toPersistenceEventEntityMapper,
+        private readonly EventCriteriaMapperInterface $criteriaMapper,
     ) {
         parent::__construct($select);
     }
@@ -66,6 +71,31 @@ class EventCycleORMRepository extends Repository implements EventRepositoryInter
     public function getById(UuidInterface $id): EventAggregate
     {
         return $this->toDomainEventAggregateMapper->map($this->get($id));
+    }
+
+    public function getByCriteria(EventCriteriaInterface $criteria): EventCollection
+    {
+        $select = $this->criteriaMapper->getSelect($criteria, $this->select()->load(self::RELATIONS));
+
+        $totalCountQuery = clone $select;
+        if ($criteria->pagination) {
+            $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
+            $select->limit($criteria->pagination->pageSize)->offset($offset);
+        }
+
+        $data = $select->fetchAll();
+
+        return new EventCollection(
+            data: \array_map(
+                fn(EventCycleORMEntity $eventEntity) => $this->toDomainEventAggregateMapper->map($eventEntity),
+                $data,
+            ),
+            pagination: new PaginationVO(
+                page: $criteria->pagination?->page ?? 1,
+                pageSize: $criteria->pagination?->pageSize ?? \count($data),
+                totalCount: $totalCountQuery->count(),
+            ),
+        );
     }
 
     /**

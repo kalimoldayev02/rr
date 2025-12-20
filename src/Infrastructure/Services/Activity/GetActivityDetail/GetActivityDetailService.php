@@ -31,7 +31,6 @@ final readonly class GetActivityDetailService implements GetActivityDetailExtern
             throw new InfrastructureException($exception->getMessage());
         }
 
-        dump($responseData);
         return new ActivityDetailDTO(
             laps: $this->collectLaps($responseData->laps),
             splits: $this->collectSplits($responseData->splits_metric),

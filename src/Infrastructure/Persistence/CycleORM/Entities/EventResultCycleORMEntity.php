@@ -13,6 +13,7 @@ use Ramsey\Uuid\UuidInterface;
 #[Uuid7(field: 'id', nullable: false)]
 #[Uuid7(field: 'athleteId', nullable: false)]
 #[Uuid7(field: 'distanceReferenceId', nullable: false)]
+#[Uuid7(field: 'activityId', nullable: false)]
 #[Uuid7(field: 'eventId', nullable: true)]
 class EventResultCycleORMEntity
 {
