@@ -7,6 +7,6 @@ namespace App\Application\Enums\Access;
 enum PermissionEnum
 {
     case create;
-    case edit;
+    case update;
     case delete;
 }

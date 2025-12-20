@@ -13,7 +13,7 @@ use Ramsey\Uuid\Uuid;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Post(path: '/api/events/{eventId}/results', tags: ['Events'])]
+#[OA\Post(path: '/api/events/{eventId}/results', tags: ['Event Results'])]
 #[OA\Parameter(name: 'eventId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[OA\RequestBody(content: new OA\JsonContent(ref: AddEventResultRequest::class))]
 #[ROA\SuccessfulResponse]
