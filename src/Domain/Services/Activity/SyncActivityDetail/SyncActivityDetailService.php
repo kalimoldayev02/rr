@@ -9,11 +9,9 @@ use App\Domain\Collections\ActivityLapCollection;
 use App\Domain\Collections\ActivitySplitCollection;
 use App\Domain\Entities\ActivityLapEntity;
 use App\Domain\Entities\ActivitySplitEntity;
-use App\Domain\Enums\Token\OAuthTokenProviderEnum;
-use App\Domain\Exceptions\Athlete\OAuthTokenNotFoundException;
 use App\Domain\Repositories\ActivityRepositoryInterface;
 use App\Domain\Repositories\AthleteRepositoryInterface;
-use App\Domain\Services\OAuthToken\EnsureFreshOAuthToken\EnsureFreshOAuthTokenService;
+use App\Domain\Services\Athlete\RefreshAthleteOAuthToken\RefreshAthleteOAuthTokenService;
 use App\Domain\ValueObjects\IdVO;
 
 final readonly class SyncActivityDetailService
@@ -21,22 +19,15 @@ final readonly class SyncActivityDetailService
     public function __construct(
         private ActivityRepositoryInterface $activityRepository,
         private GetActivityDetailExternalServiceInterface $getDetailService,
-        private EnsureFreshOAuthTokenService $ensureFreshOAuthTokenService,
         private AthleteRepositoryInterface $athleteRepository,
+        private RefreshAthleteOAuthTokenService $refreshTokenService,
     ) {}
 
     public function sync(ActivityAggregate $activityAggregate): void
     {
         $athleteEntity = $this->athleteRepository->getById($activityAggregate->getAthleteId());
+        $oAuthTokenEntity = $this->refreshTokenService->refreshIfExpired($athleteEntity);
 
-        if (!$oAuthTokenEntity = $athleteEntity->getOAuthTokens()->getByProvider(OAuthTokenProviderEnum::strava)) {
-            throw new OAuthTokenNotFoundException();
-        }
-        if ($oAuthTokenEntity->isExpired()) {
-            $oAuthTokenEntity = $this->ensureFreshOAuthTokenService->ensure($oAuthTokenEntity);
-            $athleteEntity->getOAuthTokens()->replace($oAuthTokenEntity);
-            $this->athleteRepository->update($athleteEntity);
-        }
         $activityDetail = $this->getDetailService->get($oAuthTokenEntity->getAccessToken(), $activityAggregate->getExternalId());
 
         $activityAggregate->setSplits(new ActivitySplitCollection($this->collectSplits($activityDetail->splits)));

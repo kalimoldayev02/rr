@@ -44,6 +44,7 @@ final readonly class ExchangeAthleteCodeService implements ExchangeAthleteCodeIn
             gender: match ($response->athlete->sex) {
                 'M' => UserGenderEnum::male,
                 'F' => UserGenderEnum::female,
+                default => null,
             },
             firstname: $response->athlete->firstname,
             lastname: $response->athlete->lastname,

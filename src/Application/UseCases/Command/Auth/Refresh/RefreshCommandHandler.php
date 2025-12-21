@@ -32,6 +32,7 @@ final readonly class RefreshCommandHandler
         /** @var RefreshTokenEntity $refreshTokenEntity */
         $refreshTokenEntity = $refreshTokenCollection->first();
         if ($refreshTokenEntity->isExpired()) {
+            $this->refreshTokenRepository->delete($refreshTokenEntity);
             throw new TokenExpiredException();
         }
 

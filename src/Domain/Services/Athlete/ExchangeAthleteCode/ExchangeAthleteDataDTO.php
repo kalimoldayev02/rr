@@ -10,7 +10,7 @@ final readonly class ExchangeAthleteDataDTO
 {
     public function __construct(
         public int $externalId,
-        public UserGenderEnum $gender,
+        public ?UserGenderEnum $gender,
         public string $firstname,
         public string $lastname,
         public string $accessToken,

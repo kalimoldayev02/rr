@@ -27,6 +27,7 @@ final readonly class PersistenceAthleteEntityToDomainAthleteEntityMapper
             gender: match ($persistenceAthleteEntity->getGender()) {
                 UserGenderEnum::male->name => UserGenderEnum::male,
                 UserGenderEnum::female->name => UserGenderEnum::female,
+                default => null,
             },
             password: $persistenceAthleteEntity->getPassword(),
             birthday: $persistenceAthleteEntity->getBirthday(),

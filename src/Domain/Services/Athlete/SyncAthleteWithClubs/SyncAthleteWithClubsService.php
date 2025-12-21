@@ -13,9 +13,9 @@ use App\Domain\Repositories\AthleteRepositoryInterface;
 use App\Domain\Repositories\ClubRepositoryInterface;
 use App\Domain\Services\Athlete\GetAthleteClubs\ClubDTO;
 use App\Domain\Services\Athlete\GetAthleteClubs\GetAthleteClubsServiceInterface;
+use App\Domain\Services\Athlete\RefreshAthleteOAuthToken\RefreshAthleteOAuthTokenService;
 use App\Domain\ValueObjects\IdVO;
 use Ramsey\Uuid\UuidInterface;
-use App\Domain\Services\OAuthToken\EnsureFreshOAuthToken\EnsureFreshOAuthTokenService;
 
 final readonly class SyncAthleteWithClubsService
 {
@@ -23,20 +23,16 @@ final readonly class SyncAthleteWithClubsService
         private AthleteRepositoryInterface $athleteRepository,
         private GetAthleteClubsServiceInterface $getAthleteClubsService,
         private ClubRepositoryInterface $clubRepository,
-        private EnsureFreshOAuthTokenService $ensureFreshOAuthTokenService,
+        private RefreshAthleteOAuthTokenService $refreshTokenService,
     ) {}
 
     public function sync(UuidInterface $athleteId): void
     {
         $athleteEntity = $this->athleteRepository->getById($athleteId);
-        if (!$oAuthTokenEntity = $athleteEntity->getOAuthTokens()->getByProvider(OAuthTokenProviderEnum::strava)) {
+        if (!$athleteEntity->getOAuthTokens()->getByProvider(OAuthTokenProviderEnum::strava)) {
             throw new OAuthTokenNotFoundException();
         }
-
-        if ($oAuthTokenEntity->isExpired()) {
-            $oAuthTokenEntity = $this->ensureFreshOAuthTokenService->ensure($oAuthTokenEntity);
-            $athleteEntity->getOAuthTokens()->replace($oAuthTokenEntity);
-        }
+        $oAuthTokenEntity = $this->refreshTokenService->refreshIfExpired($athleteEntity);
 
         $clubs = $this->getAthleteClubsService->get($oAuthTokenEntity->getAccessToken());
         $clubIds = [];
@@ -45,6 +41,7 @@ final readonly class SyncAthleteWithClubsService
             if (!$clubCollection->isEmpty()) {
                 $clubEntity = $clubCollection->first();
             } else {
+                // TODO add permissions
                 $clubEntity = $this->createClub($club);
             }
             $clubIds[] = $clubEntity->getId();

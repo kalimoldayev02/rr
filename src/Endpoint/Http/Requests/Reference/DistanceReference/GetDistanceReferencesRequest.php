@@ -49,8 +49,8 @@ final class GetDistanceReferencesRequest extends Filter implements HasFilterDefi
             'toDistance' => ['nullable', 'numeric', 'min:0'],
             'distanceTypes' => ['nullable', 'array'],
             'distanceTypes.*' => [Rule::enum(DistanceTypeEnum::class)],
-            'page' => ['nullable', 'integer'],
-            'limit' => ['nullable', 'integer'],
+            'page' => ['integer', 'min:1'],
+            'limit' => ['integer', 'min:1', 'max:30'],
         ]);
     }
 

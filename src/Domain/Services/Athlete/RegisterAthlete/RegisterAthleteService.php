@@ -7,6 +7,9 @@ namespace App\Domain\Services\Athlete\RegisterAthlete;
 use App\Domain\Collections\ClubIdCollection;
 use App\Domain\Exceptions\Athlete\AthleteExistsException;
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
+use App\Domain\Exceptions\Auth\InvalidTokenException;
+use App\Domain\Exceptions\InfrastructureException;
+use App\Domain\Exceptions\TooManyRequestsException;
 use App\Domain\Repositories\AccessTokenRepositoryInterface;
 use App\Domain\Repositories\AuthStateRepositoryInterface;
 use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
@@ -35,6 +38,9 @@ final readonly class RegisterAthleteService
     /**
      * @throws AuthStateNotValidException
      * @throws AthleteExistsException
+     * @throws InvalidTokenException
+     * @throws TooManyRequestsException
+     * @throws InfrastructureException
      */
     public function register(RegisterAthleteInputDTO $registerAthleteData): RegisterAthleteOutputDTO
     {
@@ -46,12 +52,12 @@ final readonly class RegisterAthleteService
         }
 
         $externalData = $this->externalService->exchange($registerAthleteData->code);
-        $this->authStateRepository->delete($registerAthleteData->state);
 
         $athleteId = $this->createAthlete($externalData, $registerAthleteData);
 
         $accessTokenEntity = $this->accessTokenRepository->generate($athleteId);
         $refreshTokenEntity = $this->generateRefreshTokenService->generate($athleteId);
+        $this->authStateRepository->delete($registerAthleteData->state);
 
         return new RegisterAthleteOutputDTO(
             athleteId: $athleteId,

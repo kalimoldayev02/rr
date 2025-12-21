@@ -62,9 +62,9 @@ final class GetEventsRequest extends Filter implements HasFilterDefinition
             'fromDate' => ['nullable', 'date_format:Y-m-d\TH:i:s.vP,Y-m-d\TH:i:s.v\Z'],
             'toDate' => ['nullable', 'date_format:Y-m-d\TH:i:s.vP,Y-m-d\TH:i:s.v\Z'],
             'title' => ['nullable', 'string'],
-            'own' => ['bool', 'defauxlt:false'],
-            'page' => ['nullable', 'integer'],
-            'limit' => ['nullable', 'integer'],
+            'own' => ['bool', 'default:false'],
+            'page' => ['integer', 'min:1'],
+            'limit' => ['integer', 'min:1', 'max:30'],
         ]);
     }
 

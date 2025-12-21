@@ -37,7 +37,7 @@ final class RegisterRequest extends Filter implements HasFilterDefinition
         return new FilterDefinition([
             'code' => ['required', 'string'],
             'state' => ['required', 'string'],
-            'email' => ['required', 'string'],
+            'email' => ['required', 'string', 'max:50', 'email:rfc,dns'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
     }

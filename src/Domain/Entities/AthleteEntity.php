@@ -21,7 +21,7 @@ final class AthleteEntity
         private readonly int $externalId,
         private string $firstname,
         private string $lastname,
-        private UserGenderEnum $gender,
+        private ?UserGenderEnum $gender,
         private string $password,
         private ?\DateTimeImmutable $birthday = null,
         private ?\DateTimeImmutable $createdAt = null,
@@ -71,12 +71,12 @@ final class AthleteEntity
         $this->lastname = $lastname;
     }
 
-    public function getGender(): UserGenderEnum
+    public function getGender(): ?UserGenderEnum
     {
         return $this->gender;
     }
 
-    public function setGender(UserGenderEnum $gender): void
+    public function setGender(?UserGenderEnum $gender): void
     {
         $this->gender = $gender;
     }

@@ -28,8 +28,8 @@ final class GetActivitiesRequest extends Filter implements HasFilterDefinition
         return new FilterDefinition([
             'fromDate' => ['date'],
             'toDate' => ['date'],
-            'page' => ['integer'],
-            'limit' => ['integer'],
+            'page' => ['integer', 'min:1'],
+            'limit' => ['integer', 'min:1', 'max:30'],
         ]);
     }
 

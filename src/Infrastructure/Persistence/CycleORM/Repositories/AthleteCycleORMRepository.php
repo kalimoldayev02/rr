@@ -41,7 +41,7 @@ class AthleteCycleORMRepository extends Repository implements AthleteRepositoryI
             metadata: null,
             firstname: $athleteEntity->getFirstname(),
             lastname: $athleteEntity->getLastname(),
-            gender: $athleteEntity->getGender()->name,
+            gender: $athleteEntity->getGender()?->name ?? null,
             birthday: $athleteEntity->getBirthday(),
             password: $athleteEntity->getPassword(),
         );

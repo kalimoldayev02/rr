@@ -7,14 +7,15 @@ namespace App\Application\UseCases\Command\Auth\Register;
 use App\Application\DTO\Token\TokenDTO;
 use App\Application\Exceptions\ApplicationException;
 use App\Domain\Events\Athlete\AthleteRegisteredEvent;
-use App\Domain\Exceptions\Athlete\AthleteExistsException;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteInputDTO;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteService;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 
 final readonly class RegisterCommandHandler
 {
     public function __construct(
+        private LoggerInterface $logger,
         private EventDispatcherInterface $eventDispatcher,
         private RegisterAthleteService $registerAthleteService,
     ) {}
@@ -33,13 +34,18 @@ final readonly class RegisterCommandHandler
             ));
 
             $this->eventDispatcher->dispatch(new AthleteRegisteredEvent(athleteId: $athlete->athleteId));
-        } catch (AthleteExistsException $exception) {
+
+            return new TokenDTO(
+                accessToken: $athlete->accessToken,
+                refreshToken: $athlete->refreshToken,
+            );
+        } catch (\Exception $exception) {
+            $this->logger->error('Register', [
+                'message' => $exception->getMessage(),
+                'email' => $command->email,
+            ]);
+
             throw new ApplicationException($exception->getMessage());
         }
-
-        return new TokenDTO(
-            accessToken: $athlete->accessToken,
-            refreshToken: $athlete->refreshToken,
-        );
     }
 }

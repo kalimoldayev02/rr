@@ -16,7 +16,7 @@ final readonly class CreateAthleteDTO
         public int $externalId,
         public string $firstname,
         public string $lastname,
-        public UserGenderEnum $gender,
+        public ?UserGenderEnum $gender,
         public string $password,
         public string $oAuthAccessToken,
         public string $oAuthRefreshToken,

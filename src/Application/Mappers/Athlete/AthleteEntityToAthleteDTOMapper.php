@@ -22,7 +22,7 @@ final readonly class AthleteEntityToAthleteDTOMapper
             lastName: $athleteEntity->getLastName(),
             clubIds: $athleteEntity->getClubIds()->toArray(),
             email: $athleteEntity->getEmail()->getValue(),
-            gender: $this->toApplicationUserGenderMapper->map($athleteEntity->getGender()),
+            gender: $athleteEntity->getGender() ? $this->toApplicationUserGenderMapper->map($athleteEntity->getGender()) : null,
             birthday: $athleteEntity->getBirthday(),
         );
     }

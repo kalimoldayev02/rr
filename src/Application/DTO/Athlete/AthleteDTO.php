@@ -15,7 +15,7 @@ final readonly class AthleteDTO
         public string $lastName,
         public array $clubIds,
         public string $email,
-        public UserGenderEnum $gender,
+        public ?UserGenderEnum $gender,
         public ?\DateTimeImmutable $birthday = null,
     ) {}
 }

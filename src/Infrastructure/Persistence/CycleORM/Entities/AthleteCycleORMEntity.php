@@ -45,8 +45,8 @@ class AthleteCycleORMEntity
         private string $firstname,
         #[Column(type: 'string')]
         private string $lastname,
-        #[Column(type: 'string')]
-        private string $gender,
+        #[Column(type: 'string', nullable: true)]
+        private ?string $gender,
         #[Column(type: 'datetime', nullable: true)]
         private ?\DateTimeImmutable $birthday,
         #[Column(type: 'string')]
@@ -107,12 +107,12 @@ class AthleteCycleORMEntity
         $this->lastname = $lastname;
     }
 
-    public function getGender(): string
+    public function getGender(): ?string
     {
         return $this->gender;
     }
 
-    public function setGender(string $gender): void
+    public function setGender(?string $gender): void
     {
         $this->gender = $gender;
     }

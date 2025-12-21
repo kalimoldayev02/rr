@@ -13,17 +13,15 @@ use App\Domain\Enums\Sort\SortDirectionEnum;
 use App\Domain\Enums\Token\OAuthTokenProviderEnum;
 use App\Domain\Exceptions\Athlete\OAuthTokenNotFoundException;
 use App\Domain\Repositories\ActivityRepositoryInterface;
-use App\Domain\Repositories\AthleteRepositoryInterface;
-use App\Domain\Services\OAuthToken\EnsureFreshOAuthToken\EnsureFreshOAuthTokenService;
+use App\Domain\Services\Athlete\RefreshAthleteOAuthToken\RefreshAthleteOAuthTokenService;
 use App\Domain\ValueObjects\IdVO;
 
 final readonly class SyncActivitiesService
 {
     public function __construct(
         private ActivityRepositoryInterface $activityRepository,
-        private EnsureFreshOAuthTokenService $ensureFreshOAuthTokenService,
+        private RefreshAthleteOAuthTokenService $refreshTokenService,
         private GetActivitiesExternalServiceInterface $syncActivitiesExternalService,
-        private AthleteRepositoryInterface $athleteRepository,
     ) {}
 
     public function sync(AthleteEntity $athleteEntity): void
@@ -43,14 +41,10 @@ final readonly class SyncActivitiesService
             $fromDate = $activityCollection->first()->getStartDate();
         }
 
-        if (!$oAuthTokenEntity = $athleteEntity->getOAuthTokens()->getByProvider(OAuthTokenProviderEnum::strava)) {
+        if (!$athleteEntity->getOAuthTokens()->getByProvider(OAuthTokenProviderEnum::strava)) {
             throw new OAuthTokenNotFoundException();
         }
-        if ($oAuthTokenEntity->isExpired()) {
-            $oAuthTokenEntity = $this->ensureFreshOAuthTokenService->ensure($oAuthTokenEntity);
-            $athleteEntity->getOAuthTokens()->replace($oAuthTokenEntity);
-            $this->athleteRepository->update($athleteEntity);
-        }
+        $oAuthTokenEntity = $this->refreshTokenService->refreshIfExpired($athleteEntity);
 
         $activities = $this->syncActivitiesExternalService->get(
             accessToken: $oAuthTokenEntity->getAccessToken(),
