@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Endpoint\Http\Responses\Athlete;
+namespace App\Endpoint\Http\Responses\Auth;
 
 use App\Endpoint\Http\Responses\JsonSerializableTrait;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema]
-final readonly class GetRegisterAthleteUrlResponse implements \JsonSerializable
+final readonly class GetRegisterUrlResponse implements \JsonSerializable
 {
     use JsonSerializableTrait;
 

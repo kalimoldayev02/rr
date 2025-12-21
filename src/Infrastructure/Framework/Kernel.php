@@ -53,7 +53,7 @@ class Kernel extends \Spiral\Framework\Kernel
             YiiErrorHandlerBootloader::class,
             InfrastructureBootloaders\ExceptionHandlerBootloader::class,
 
-            // Application specific logs
+            // Application-specific logs
             InfrastructureBootloaders\LoggingBootloader::class,
 
             // RoadRunner

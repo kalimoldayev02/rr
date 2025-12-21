@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Persistence\CycleORM\Mappers\Sort;
+namespace App\Infrastructure\Mappers\Activity;
 
 use App\Domain\Enums\SportTypeEnum;
 
-final readonly class SportTypeValueToDomainSportTypeMapper
+final readonly class SportTypeToActivitySportTypeMapper
 {
     public function map(string $sportType): SportTypeEnum
     {
-        return match ($sportType) {
+        return match (\lcfirst($sportType)) {
             SportTypeEnum::alpineSki->name => SportTypeEnum::alpineSki,
             SportTypeEnum::backcountrySki->name => SportTypeEnum::backcountrySki,
             SportTypeEnum::badminton->name => SportTypeEnum::badminton,

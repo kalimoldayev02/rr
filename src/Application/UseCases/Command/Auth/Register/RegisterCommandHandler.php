@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Application\UseCases\Command\Athlete\RegisterAthlete;
+namespace App\Application\UseCases\Command\Auth\Register;
 
 use App\Application\DTO\Token\TokenDTO;
 use App\Application\Exceptions\ApplicationException;
 use App\Domain\Events\Athlete\AthleteRegisteredEvent;
 use App\Domain\Exceptions\Athlete\AthleteExistsException;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteInputDTO;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use App\Domain\Services\Athlete\RegisterAthlete\RegisterAthleteService;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
-final readonly class RegisterAthleteCommandHandler
+final readonly class RegisterCommandHandler
 {
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
@@ -22,7 +22,7 @@ final readonly class RegisterAthleteCommandHandler
     /**
      * @throws ApplicationException
      */
-    public function handle(RegisterAthleteCommand $command): TokenDTO
+    public function handle(RegisterCommand $command): TokenDTO
     {
         try {
             $athlete = $this->registerAthleteService->register(new RegisterAthleteInputDTO(

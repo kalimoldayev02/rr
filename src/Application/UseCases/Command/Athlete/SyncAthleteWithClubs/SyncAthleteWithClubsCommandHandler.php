@@ -23,7 +23,7 @@ final readonly class SyncAthleteWithClubsCommandHandler
         try {
             $this->syncAthleteWithClubsService->sync($command->athleteId);
         } catch (\DomainException $exception) {
-            $this->logger->error(__CLASS__, [
+            $this->logger->error('SyncAthleteWithClubs', [
                 'message' => $exception->getMessage(),
                 'athleteId' => $command->athleteId,
             ]);

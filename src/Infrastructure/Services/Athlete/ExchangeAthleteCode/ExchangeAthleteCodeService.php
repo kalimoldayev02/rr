@@ -11,14 +11,12 @@ use App\Domain\Exceptions\TooManyRequestsException;
 use App\Infrastructure\Exceptions\HttpClientProviderException;
 use App\Infrastructure\Providers\Strava\StravaProvider;
 use App\Infrastructure\Providers\Strava\StravaProviderConfig;
-use Psr\Log\LoggerInterface;
 use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
 use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteDataDTO;
 
 final readonly class ExchangeAthleteCodeService implements ExchangeAthleteCodeInterface
 {
     public function __construct(
-        private LoggerInterface $logger,
         private StravaProviderConfig $stravaProviderConfig,
         private StravaProvider $stravaProvider,
     ) {}
@@ -40,8 +38,6 @@ final readonly class ExchangeAthleteCodeService implements ExchangeAthleteCodeIn
         } catch (HttpClientProviderException $exception) {
             throw new InfrastructureException($exception->getMessage());
         }
-
-        $this->logger->info('Exchange code', ['data' => $response]);
 
         return new ExchangeAthleteDataDTO(
             externalId: $response->athlete->id,

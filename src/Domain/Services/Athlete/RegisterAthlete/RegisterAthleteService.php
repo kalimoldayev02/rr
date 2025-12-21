@@ -7,8 +7,9 @@ namespace App\Domain\Services\Athlete\RegisterAthlete;
 use App\Domain\Collections\ClubIdCollection;
 use App\Domain\Exceptions\Athlete\AthleteExistsException;
 use App\Domain\Exceptions\Auth\AuthStateNotValidException;
+use App\Domain\Repositories\AccessTokenRepositoryInterface;
 use App\Domain\Repositories\AuthStateRepositoryInterface;
-use App\Domain\Services\Auth\GenerateAccessToken\GenerateAccessTokenService;
+use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
 use App\Domain\Services\Auth\GenerateRefreshToken\GenerateRefreshTokenService;
 use App\Domain\Specifications\Athlete\AthleteEmailIsUniqueSpecification;
 use App\Domain\Specifications\Auth\AuthStateIsValidSpecification;
@@ -17,7 +18,6 @@ use App\Domain\ValueObjects\IdVO;
 use Ramsey\Uuid\UuidInterface;
 use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteDTO;
 use App\Domain\Services\Athlete\CreateAthlete\CreateAthleteService;
-use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteCodeInterface;
 use App\Domain\Services\Athlete\ExchangeAthleteCode\ExchangeAthleteDataDTO;
 
 final readonly class RegisterAthleteService
@@ -25,10 +25,10 @@ final readonly class RegisterAthleteService
     public function __construct(
         private ExchangeAthleteCodeInterface $externalService,
         private AuthStateIsValidSpecification $stateIsValidSpecification,
+        private AccessTokenRepositoryInterface $accessTokenRepository,
         private AthleteEmailIsUniqueSpecification $athleteEmailIsUniqueSpecification,
         private AuthStateRepositoryInterface  $authStateRepository,
         private CreateAthleteService $createAthleteService,
-        private GenerateAccessTokenService $generateAccessTokenService,
         private GenerateRefreshTokenService $generateRefreshTokenService,
     ) {}
 
@@ -50,7 +50,7 @@ final readonly class RegisterAthleteService
 
         $athleteId = $this->createAthlete($externalData, $registerAthleteData);
 
-        $accessTokenEntity = $this->generateAccessTokenService->generate($athleteId);
+        $accessTokenEntity = $this->accessTokenRepository->generate($athleteId);
         $refreshTokenEntity = $this->generateRefreshTokenService->generate($athleteId);
 
         return new RegisterAthleteOutputDTO(

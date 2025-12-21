@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Endpoint\Http\Requests\Athlete;
+namespace App\Endpoint\Http\Requests\Auth;
 
 use OpenApi\Attributes as OA;
 use Spiral\Filters\Attribute\Input\Post;
@@ -12,7 +12,7 @@ use Spiral\Filters\Model\HasFilterDefinition;
 use Spiral\Validation\Laravel\FilterDefinition;
 
 #[OA\Schema]
-final class RegisterAthleteRequest extends Filter implements HasFilterDefinition
+final class RegisterRequest extends Filter implements HasFilterDefinition
 {
     private const int COST = 12;
 
@@ -38,7 +38,7 @@ final class RegisterAthleteRequest extends Filter implements HasFilterDefinition
             'code' => ['required', 'string'],
             'state' => ['required', 'string'],
             'email' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:6'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
     }
 

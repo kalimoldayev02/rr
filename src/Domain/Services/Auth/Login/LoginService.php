@@ -8,8 +8,8 @@ use App\Domain\Criteria\User\UserQueryCriteria;
 use App\Domain\DTO\Token\TokenDTO;
 use App\Domain\Entities\UserEntity;
 use App\Domain\Exceptions\Auth\InvalidCredentialsException;
+use App\Domain\Repositories\AccessTokenRepositoryInterface;
 use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Services\Auth\GenerateAccessToken\GenerateAccessTokenService;
 use App\Domain\Services\Auth\GenerateRefreshToken\GenerateRefreshTokenService;
 use App\Domain\Services\Auth\DeleteExpiredTokens\DeleteExpiredTokensService;
 
@@ -17,7 +17,7 @@ final readonly class LoginService
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private GenerateAccessTokenService $generateAccessTokenService,
+        private AccessTokenRepositoryInterface $accessTokenRepository,
         private GenerateRefreshTokenService $generateRefreshTokenService,
         private DeleteExpiredTokensService $deleteExpiredTokensService,
     ) {}
@@ -37,7 +37,7 @@ final readonly class LoginService
         if (!\password_verify($loginData->password, $userEntity->getPassword())) {
             throw new InvalidCredentialsException();
         }
-        $accessTokenEntity = $this->generateAccessTokenService->generate($userEntity->getId());
+        $accessTokenEntity = $this->accessTokenRepository->generate($userEntity->getId());
         $refreshTokenEntity = $this->generateRefreshTokenService->generate($userEntity->getId());
 
         $this->deleteExpiredTokensService->delete($userEntity->getId());

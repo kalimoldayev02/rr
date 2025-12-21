@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Endpoint\Http\Middlewares;
 
+use App\Domain\Repositories\AccessTokenRepositoryInterface;
 use App\Domain\Services\Jwt\JwtServiceInterface;
 use App\Endpoint\Http\Contexts\UserContext;
 use Psr\Http\Message\ResponseInterface;
@@ -18,6 +19,7 @@ final readonly class AuthJwtMiddleware implements MiddlewareInterface
     public function __construct(
         private ScopeInterface $scope,
         private JwtServiceInterface $jwtService,
+        private AccessTokenRepositoryInterface $accessTokenRepository,
     ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -32,6 +34,9 @@ final readonly class AuthJwtMiddleware implements MiddlewareInterface
         }
 
         $accessTokenEntity = $this->jwtService->decodeAccessToken(\substr($authHeader, 7));
+        if ($this->accessTokenRepository->isRevoked(id: $accessTokenEntity->getId())) {
+            throw new UnauthorizedException('Access token is revoked');
+        }
 
         return $this->scope->runScope([
             UserContext::class => new UserContext($accessTokenEntity->getUserId(), $accessTokenEntity),

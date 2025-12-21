@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Application\UseCases\Query\Athlete\GetRegisterAthleteUrl;
+namespace App\Application\UseCases\Query\Auth\GetRegisterUrl;
 
 use App\Domain\Services\Athlete\GetRegisterAthleteUrl\GetRegisterAthleteUrlServiceInterface;
 
-final readonly class GetRegisterAthleteUrlQueryHandler
+final readonly class GetRegisterUrlQueryHandler
 {
     public function __construct(
         private GetRegisterAthleteUrlServiceInterface $getRegisterUrlService,

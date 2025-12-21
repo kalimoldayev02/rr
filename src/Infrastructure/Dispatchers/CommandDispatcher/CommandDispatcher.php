@@ -17,7 +17,7 @@ final readonly class CommandDispatcher implements CommandDispatcherInterface
     public function dispatch(object $command): void
     {
         if ($this->configurator->get($command::class, 'queue')) {
-            // TODO
+            throw new \RuntimeException('Not implemented yet');
         } else {
             $handler = $this->container->get($this->configurator->get($command::class, 'handler'));
             $handler->handle($command);
