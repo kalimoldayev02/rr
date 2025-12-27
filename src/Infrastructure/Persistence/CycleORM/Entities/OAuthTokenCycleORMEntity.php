@@ -12,13 +12,12 @@ use Ramsey\Uuid\UuidInterface;
 
 #[Entity(table: 'oauth_tokens')]
 #[Uuid7(field: 'id', nullable: false)]
-#[Uuid7(field: 'user_id', nullable: false)]
 class OAuthTokenCycleORMEntity
 {
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         public UuidInterface $id,
-        #[BelongsTo(target: AthleteCycleORMEntity::class, innerKey: 'user_id', outerKey: 'id')]
+        #[BelongsTo(target: AthleteCycleORMEntity::class, innerKey: 'athlete_id', outerKey: 'id')]
         private AthleteCycleORMEntity $athlete,
         #[Column(type: 'string', name: 'provider')]
         public string $provider,

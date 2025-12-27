@@ -32,13 +32,18 @@ final class RegisterRequest extends Filter implements HasFilterDefinition
     #[OA\Property]
     private readonly string $password;
 
+    #[Post]
+    #[OA\Property]
+    private readonly string $passwordConfirmation;
+
     public function filterDefinition(): FilterDefinitionInterface
     {
         return new FilterDefinition([
             'code' => ['required', 'string'],
             'state' => ['required', 'string'],
             'email' => ['required', 'string', 'max:50', 'email:rfc,dns'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', 'min:6', 'required_with:passwordConfirmation', 'same:passwordConfirmation'],
+            'passwordConfirmation' => ['required'],
         ]);
     }
 

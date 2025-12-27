@@ -14,13 +14,13 @@ class CreateOauthTokensTableMigration extends Migration
     {
         $this->table(self::TABLE_NAME)
             ->addColumn('id', 'uuid')
-            ->addColumn('user_id', 'uuid')
+            ->addColumn('athlete_id', 'uuid')
             ->addColumn('provider', 'string')
             ->addColumn('access_token', 'text')
             ->addColumn('refresh_token', 'text')
             ->addColumn('expires_at', 'timestamp')
             ->setPrimaryKeys(['id'])
-            ->addForeignKey(['user_id'], 'users', ['id'], [
+            ->addForeignKey(['athlete_id'], 'users', ['id'], [
                 'delete' => 'CASCADE',
                 'update' => 'CASCADE',
             ])

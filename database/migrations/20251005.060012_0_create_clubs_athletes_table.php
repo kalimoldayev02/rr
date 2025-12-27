@@ -14,14 +14,14 @@ class CreateClubsAthletesTableMigration extends Migration
     {
         $this->table(self::TABLE_NAME)
             ->addColumn('club_id', 'uuid')
-            ->addColumn('user_id', 'uuid')
-            ->setPrimaryKeys(['club_id', 'user_id'])
+            ->addColumn('athlete_id', 'uuid')
+            ->setPrimaryKeys(['club_id', 'athlete_id'])
             ->addForeignKey(['club_id'], 'clubs', ['id'], [
                 'cascade' => true,
                 'delete' => 'CASCADE',
                 'update' => 'CASCADE',
             ])
-            ->addForeignKey(['user_id'], 'users', ['id'], [
+            ->addForeignKey(['athlete_id'], 'users', ['id'], [
                 'cascade' => true,
                 'delete' => 'CASCADE',
                 'update' => 'CASCADE',

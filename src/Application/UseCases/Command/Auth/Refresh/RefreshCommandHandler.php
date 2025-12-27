@@ -36,7 +36,7 @@ final readonly class RefreshCommandHandler
             throw new TokenExpiredException();
         }
 
-        $accessTokenEntity = $this->accessTokenRepository->generate($refreshTokenEntity->getUserId());
+        $accessTokenEntity = $this->accessTokenRepository->generate($refreshTokenEntity->getAthleteId());
 
         return new TokenDTO(
             accessToken: $accessTokenEntity->getToken(),

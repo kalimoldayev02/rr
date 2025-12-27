@@ -9,17 +9,17 @@ use Cycle\Annotated\Annotation\Entity;
 use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
 
-#[Entity(table: 'athlete_club_roles')]
+#[Entity(table: 'user_club_roles')]
 #[Uuid7(field: 'id', nullable: false)]
-#[Uuid7(field: 'userId', nullable: false)]
+#[Uuid7(field: 'athleteId', nullable: false)]
 #[Uuid7(field: 'clubId', nullable: false)]
 class AthleteClubRolesCycleORMEntity
 {
     public function __construct(
         #[Column(type: 'uuid', primary: true)]
         private UuidInterface $id,
-        #[Column(type: 'uuid')]
-        public UuidInterface $userId,
+        #[Column(type: 'uuid', name: 'athlete_id')]
+        public UuidInterface $athleteId,
         #[Column(type: 'uuid')]
         public UuidInterface $clubId,
         #[Column(type: 'uuid')]
@@ -36,14 +36,14 @@ class AthleteClubRolesCycleORMEntity
         $this->id = $id;
     }
 
-    public function getUserId(): UuidInterface
+    public function getAthleteId(): UuidInterface
     {
-        return $this->userId;
+        return $this->athleteId;
     }
 
-    public function setUserId(UuidInterface $userId): void
+    public function setAthleteId(UuidInterface $athleteId): void
     {
-        $this->userId = $userId;
+        $this->athleteId = $athleteId;
     }
 
     public function getClubId(): UuidInterface

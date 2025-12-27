@@ -17,7 +17,7 @@ class ClubAthleteCycleORMEntity
     public function __construct(
         #[Column(type: 'uuid', name: 'club_id', primary: true)]
         private UuidInterface $clubId,
-        #[Column(type: 'uuid', name: 'user_id', primary: true)]
+        #[Column(type: 'uuid', name: 'athlete_id', primary: true)]
         private UuidInterface $athleteId,
     ) {}
 

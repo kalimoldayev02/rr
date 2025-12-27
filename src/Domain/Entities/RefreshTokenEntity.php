@@ -13,7 +13,7 @@ final class RefreshTokenEntity
 
     public function __construct(
         private UuidInterface $id,
-        private UuidInterface $userId,
+        private UuidInterface $athleteId,
         private string $token,
         private \DateTimeImmutable $expiresAt,
     ) {}
@@ -38,14 +38,14 @@ final class RefreshTokenEntity
         $this->token = $token;
     }
 
-    public function getUserId(): UuidInterface
+    public function getAthleteId(): UuidInterface
     {
-        return $this->userId;
+        return $this->athleteId;
     }
 
-    public function setUserId(UuidInterface $userId): void
+    public function setAthleteId(UuidInterface $athleteId): void
     {
-        $this->userId = $userId;
+        $this->athleteId = $athleteId;
     }
 
     public function getExpiresAt(): \DateTimeImmutable

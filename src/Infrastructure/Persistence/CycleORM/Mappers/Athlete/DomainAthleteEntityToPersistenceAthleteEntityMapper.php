@@ -129,7 +129,7 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
         foreach ($domainAthleteEntity->getRoles() as $roleVO) {
             $rolesToPersist[] = new AthleteClubRolesCycleORMEntity(
                 id: new IdVO()->getValue(),
-                userId: $domainAthleteEntity->getId(),
+                athleteId: $domainAthleteEntity->getId(),
                 clubId: $roleVO->getClubId(),
                 roleId: $roleVO->getRoleId(),
             );

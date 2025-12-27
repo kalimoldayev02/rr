@@ -14,7 +14,7 @@ final readonly class DomainRefreshTokenEntityToPersistenceRefreshTokenEntityMapp
         $persistenceRefreshTokenEntity->setId($domainRefreshTokenEntity->getId());
         $persistenceRefreshTokenEntity->setToken($domainRefreshTokenEntity->getToken());
         $persistenceRefreshTokenEntity->setExpiresAt($domainRefreshTokenEntity->getExpiresAt());
-        $persistenceRefreshTokenEntity->setUserId($domainRefreshTokenEntity->getUserId());
+        $persistenceRefreshTokenEntity->setAthleteId($domainRefreshTokenEntity->getAthleteId());
         if ($persistenceRefreshTokenEntity->getCreatedAt() === null) {
             $persistenceRefreshTokenEntity->setCreatedAt(new \DateTimeImmutable());
         }

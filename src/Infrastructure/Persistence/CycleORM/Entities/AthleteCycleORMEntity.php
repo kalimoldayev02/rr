@@ -19,7 +19,7 @@ class AthleteCycleORMEntity
     #[HasMany(
         target: ClubAthleteCycleORMEntity::class,
         innerKey: 'id',
-        outerKey: 'user_id',
+        outerKey: 'athlete_id',
         fkOnDelete: 'CASCADE',
         load: 'eager',
     )]
@@ -28,7 +28,7 @@ class AthleteCycleORMEntity
     #[HasMany(
         target: OAuthTokenCycleORMEntity::class,
         innerKey: 'id',
-        outerKey: 'user_id',
+        outerKey: 'athlete_id',
         fkOnDelete: 'CASCADE',
         load: 'eager',
     )]
@@ -37,7 +37,7 @@ class AthleteCycleORMEntity
     #[HasMany(
         target: AthleteClubRolesCycleORMEntity::class,
         innerKey: 'id',
-        outerKey: 'user_id',
+        outerKey: 'athlete_id',
         fkOnDelete: 'CASCADE',
         load: 'eager',
     )]
@@ -48,7 +48,7 @@ class AthleteCycleORMEntity
         private UuidInterface $id,
         #[Column(type: 'string')]
         private string $email,
-        #[HasOne(target: AthleteMetadataCycleORMEntity::class, outerKey: 'user_id', cascade: true)]
+        #[HasOne(target: AthleteMetadataCycleORMEntity::class, outerKey: 'athlete_id', cascade: true)]
         private ?AthleteMetadataCycleORMEntity $metadata = null,
         #[Column(type: 'string')]
         private string $firstname,

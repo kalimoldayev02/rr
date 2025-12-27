@@ -15,11 +15,11 @@ final readonly class GenerateRefreshTokenService
         private RefreshTokenRepositoryInterface $refreshTokenRepository,
     ) {}
 
-    public function generate(UuidInterface $userId): RefreshTokenEntity
+    public function generate(UuidInterface $athleteId): RefreshTokenEntity
     {
         $refreshTokenEntity = new RefreshTokenEntity(
             id: new IdVO()->getValue(),
-            userId: $userId,
+            athleteId: $athleteId,
             token: \bin2hex(\random_bytes(32)),
             expiresAt: new \DateTimeImmutable()->modify('+30 days'),
         );

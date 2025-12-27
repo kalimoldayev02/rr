@@ -12,14 +12,13 @@ use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 
 #[Entity(repository: RefreshTokenCycleORMRepository::class, table: 'refresh_tokens')]
 #[Uuid7(field: 'id', nullable: false)]
-#[Uuid7(field: 'userId', nullable: false)]
 class RefreshTokenCycleORMEntity
 {
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         private UuidInterface $id,
-        #[Column(type: 'uuid', name: 'user_id')]
-        private UuidInterface $userId,
+        #[Column(type: 'uuid', name: 'athlete_id')]
+        private UuidInterface $athleteId,
         #[Column(type: 'string')]
         private string $token,
         #[Column(type: 'timestamptz', name: 'expires_at', typecast: 'datetime')]
@@ -40,14 +39,14 @@ class RefreshTokenCycleORMEntity
         $this->id = $id;
     }
 
-    public function getUserId(): UuidInterface
+    public function getAthleteId(): UuidInterface
     {
-        return $this->userId;
+        return $this->athleteId;
     }
 
-    public function setUserId(UuidInterface $userId): void
+    public function setAthleteId(UuidInterface $athleteId): void
     {
-        $this->userId = $userId;
+        $this->athleteId = $athleteId;
     }
 
     public function getToken(): string

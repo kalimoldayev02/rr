@@ -13,11 +13,11 @@ class AthletesMetadataMigration extends Migration
     public function up(): void
     {
         $this->table(self::TABLE_NAME)
-            ->addColumn('user_id', 'uuid')
+            ->addColumn('athlete_id', 'uuid')
             ->addColumn('external_id', 'bigint')
-            ->setPrimaryKeys(['user_id'])
+            ->setPrimaryKeys(['athlete_id'])
             ->addIndex(['external_id'], ['unique' => true])
-            ->addForeignKey(['user_id'], 'users', ['id'], [
+            ->addForeignKey(['athlete_id'], 'users', ['id'], [
                 'cascade' => true,
                 'delete' => 'CASCADE',
                 'update' => 'CASCADE',

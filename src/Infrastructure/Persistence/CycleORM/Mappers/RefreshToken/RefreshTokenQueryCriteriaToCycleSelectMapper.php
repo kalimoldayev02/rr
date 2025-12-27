@@ -13,7 +13,7 @@ final readonly class RefreshTokenQueryCriteriaToCycleSelectMapper
     public function map(RefreshTokenQueryCriteria $criteria, Select $select): Select
     {
         if ($criteria->userIds) {
-            $select->andWhere('user_id', 'IN', $criteria->userIds);
+            $select->andWhere('athlete_id', 'IN', $criteria->userIds);
         }
         if ($criteria->tokens) {
             $select->andWhere('token', 'IN', $criteria->tokens);

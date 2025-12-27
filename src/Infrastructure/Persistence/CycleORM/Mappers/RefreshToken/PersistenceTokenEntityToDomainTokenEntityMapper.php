@@ -13,7 +13,7 @@ final readonly class PersistenceTokenEntityToDomainTokenEntityMapper
     {
         return new RefreshTokenEntity(
             id: $persistenceRefreshTokenEntity->getId(),
-            userId: $persistenceRefreshTokenEntity->getUserId(),
+            athleteId: $persistenceRefreshTokenEntity->getAthleteId(),
             token: $persistenceRefreshTokenEntity->getToken(),
             expiresAt: $persistenceRefreshTokenEntity->getExpiresAt(),
         );

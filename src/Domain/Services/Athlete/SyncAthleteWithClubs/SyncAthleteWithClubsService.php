@@ -17,6 +17,7 @@ use App\Domain\Services\Athlete\GetAthleteClubs\GetAthleteClubsServiceInterface;
 use App\Domain\Services\Athlete\RefreshAthleteOAuthToken\RefreshAthleteOAuthTokenService;
 use App\Domain\ValueObjects\AthleteRoleVO;
 use App\Domain\ValueObjects\IdVO;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 final readonly class SyncAthleteWithClubsService
@@ -44,11 +45,10 @@ final readonly class SyncAthleteWithClubsService
                 $clubEntity = $clubCollection->first();
             } else {
                 $clubEntity = $this->createClub($club);
-                $athleteEntity->addRole(new AthleteRoleVO(clubId: $clubEntity->getId(), roleId: RoleEnum::admin));
+                $athleteEntity->addRole(new AthleteRoleVO(clubId: $clubEntity->getId(), roleId: Uuid::fromString('019a5d19-c8fc-70e3-94b2-ebe38c951fcf')));
             }
-            // TODO
-            if ($clubEntity->getOwnerExternalId() === $athleteEntity) {
-                $athleteEntity->addRole(new AthleteRoleVO(clubId: $clubEntity->getId(), roleId: RoleEnum::owner));
+            if ($clubEntity->getOwnerExternalId() === $athleteEntity->getExternalId()) {
+                $athleteEntity->addRole(new AthleteRoleVO(clubId: $clubEntity->getId(), roleId: Uuid::fromString('019a5798-3dce-72f8-9c27-f4f864489c02')));
             }
 
             $clubIds[] = $clubEntity->getId();

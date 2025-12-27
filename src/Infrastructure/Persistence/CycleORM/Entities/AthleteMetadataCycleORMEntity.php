@@ -14,7 +14,7 @@ use Ramsey\Uuid\UuidInterface;
 class AthleteMetadataCycleORMEntity
 {
     public function __construct(
-        #[Column(type: 'uuid', name: 'user_id', primary: true)]
+        #[Column(type: 'uuid', name: 'athlete_id', primary: true)]
         private UuidInterface $athleteId,
         #[Column(type: 'bigInteger', name: 'external_id')]
         private int $externalId,

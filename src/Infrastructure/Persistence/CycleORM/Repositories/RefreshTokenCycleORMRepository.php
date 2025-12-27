@@ -35,7 +35,7 @@ class RefreshTokenCycleORMRepository extends Repository implements RefreshTokenR
     {
         $persistenceTokenEntity = new RefreshTokenCycleORMEntity(
             id: $refreshTokenEntity->getId(),
-            userId: $refreshTokenEntity->getUserId(),
+            athleteId: $refreshTokenEntity->getAthleteId(),
             token: $refreshTokenEntity->getToken(),
             expiresAt: $refreshTokenEntity->getExpiresAt(),
         );
