@@ -16,9 +16,8 @@ class CreateClubsTableMigration extends Migration
             ->addColumn('id', 'uuid')
             ->addColumn('external_id', 'bigint')
             ->addColumn('name', 'string')
-            ->addColumn('owner_external_id', 'bigint')
+            ->addColumn('owner_external_id', 'bigint', ['nullable' => true, 'default' => null])
             ->addColumn('description', 'string', ['nullable' => true, 'default' => null])
-            ->addIndex(['external_id'], ['unique' => true])
             ->setPrimaryKeys(['id'])
             ->create();
     }

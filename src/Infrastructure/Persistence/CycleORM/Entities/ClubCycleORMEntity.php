@@ -32,8 +32,8 @@ class ClubCycleORMEntity
             load: 'eager',
         )]
         private array $sportTypes = [],
-        #[Column(type: 'bigInteger', name: 'owner_external_id')]
-        private int $ownerExternalId,
+        #[Column(type: 'bigInteger', name: 'owner_external_id', nullable: true)]
+        private ?int $ownerExternalId,
     ) {}
 
     public function getId(): UuidInterface
@@ -86,12 +86,12 @@ class ClubCycleORMEntity
         $this->sportTypes = $sportTypes;
     }
 
-    public function getOwnerExternalId(): int
+    public function getOwnerExternalId(): ?int
     {
         return $this->ownerExternalId;
     }
 
-    public function setOwnerExternalId(int $ownerExternalId): void
+    public function setOwnerExternalId(?int $ownerExternalId): void
     {
         $this->ownerExternalId = $ownerExternalId;
     }

@@ -56,12 +56,12 @@ final class ClubEntity
         $this->description = $description;
     }
 
-    public function getOwnerExternalId(): int
+    public function getOwnerExternalId(): ?int
     {
         return $this->ownerExternalId;
     }
 
-    public function setExternalOwnerId(int $ownerExternalId): void
+    public function setExternalOwnerId(?int $ownerExternalId): void
     {
         $this->ownerExternalId = $ownerExternalId;
     }

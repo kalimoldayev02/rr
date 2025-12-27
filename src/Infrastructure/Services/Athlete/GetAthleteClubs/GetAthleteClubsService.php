@@ -21,17 +21,27 @@ final readonly class GetAthleteClubsService implements GetAthleteClubsServiceInt
     public function get(string $athleteAccessToken): array
     {
         try {
+            $result = [];
             $responseData = $this->stravaProvider->withToken($athleteAccessToken)->get(path: 'athlete/clubs');
 
-            return \array_map(fn(object $club) => new ClubDTO(
-                id: $club->id,
-                name: $club->name,
-                sportTypes: \array_map(fn(string $sportType) => $this->toActivitySportTypeMapper->map(
-                    sportType: $sportType,
-                ), $club->activity_types),
-                description: $club->description ?? null,
-                ownerExternalId: $club->owner_id,
-            ), $responseData);
+            foreach ($responseData as $club) {
+                if (!$club->private) {
+                    continue;
+                }
+
+                $clubResponseData = $this->stravaProvider->withToken($athleteAccessToken)->get(path: 'clubs/' . $club->id);
+                $result[] = new ClubDTO(
+                    id: $clubResponseData->id,
+                    name: $clubResponseData->name,
+                    sportTypes: \array_map(fn(string $sportType) => $this->toActivitySportTypeMapper->map(
+                        sportType: $sportType,
+                    ), $clubResponseData->activity_types),
+                    description: $clubResponseData->description,
+                    ownerExternalId: $clubResponseData?->owner_id ?? null,
+                );
+            }
+
+            return $result;
         } catch (HttpClientProviderException $exception) {
             throw new InfrastructureException($exception->getMessage());
         }

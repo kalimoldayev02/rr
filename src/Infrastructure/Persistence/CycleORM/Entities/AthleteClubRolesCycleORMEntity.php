@@ -13,6 +13,7 @@ use Ramsey\Uuid\UuidInterface;
 #[Uuid7(field: 'id', nullable: false)]
 #[Uuid7(field: 'athleteId', nullable: false)]
 #[Uuid7(field: 'clubId', nullable: false)]
+#[Uuid7(field: 'roleId', nullable: false)]
 class AthleteClubRolesCycleORMEntity
 {
     public function __construct(

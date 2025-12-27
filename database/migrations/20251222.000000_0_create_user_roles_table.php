@@ -24,7 +24,7 @@ class CreateUserRolesTableMigration extends Migration
                 'delete' => 'CASCADE',
                 'update' => 'CASCADE',
             ])
-            ->addForeignKey(['role_id'], 'users', ['id'], [
+            ->addForeignKey(['role_id'], 'roles', ['id'], [
                 'cascade' => true,
                 'delete' => 'CASCADE',
                 'update' => 'CASCADE',
