@@ -25,7 +25,6 @@ final readonly class PersistenceEventEntityToDomainEventAggregateMapper
 
         return new EventAggregate(
             id: $persistenceEventEntity->getId(),
-            authorId: $persistenceEventEntity->getAuthorId(),
             clubId: $persistenceEventEntity->getClubId(),
             date: $persistenceEventEntity->getDate(),
             title: $persistenceEventEntity->getTitle(),

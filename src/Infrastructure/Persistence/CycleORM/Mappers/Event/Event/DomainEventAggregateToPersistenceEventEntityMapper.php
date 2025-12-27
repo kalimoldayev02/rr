@@ -20,7 +20,6 @@ final readonly class DomainEventAggregateToPersistenceEventEntityMapper
     public function map(EventCycleORMEntity $persistenceEventEntity, EventAggregate $domainEventAggregate): EventCycleORMEntity
     {
         $persistenceEventEntity->setId($domainEventAggregate->getId());
-        $persistenceEventEntity->setAuthorId($domainEventAggregate->getAuthorId());
         $persistenceEventEntity->setClubId($domainEventAggregate->getClubId());
         $persistenceEventEntity->setDate($domainEventAggregate->getDate());
         $persistenceEventEntity->setTitle($domainEventAggregate->getTitle());

@@ -6,6 +6,6 @@ namespace App\Application\Enums\Access;
 
 enum RoleEnum
 {
-    case event;
-    case reference;
+    case admin;
+    case owner;
 }

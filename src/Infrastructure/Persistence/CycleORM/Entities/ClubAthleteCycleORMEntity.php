@@ -11,14 +11,14 @@ use Ramsey\Uuid\UuidInterface;
 
 #[Entity(table: 'club_athletes')]
 #[Uuid7(field: 'clubId', nullable: false)]
-#[Uuid7(field: 'userId', nullable: false)]
+#[Uuid7(field: 'athleteId', nullable: false)]
 class ClubAthleteCycleORMEntity
 {
     public function __construct(
         #[Column(type: 'uuid', name: 'club_id', primary: true)]
         private UuidInterface $clubId,
         #[Column(type: 'uuid', name: 'user_id', primary: true)]
-        private UuidInterface $userId,
+        private UuidInterface $athleteId,
     ) {}
 
     public function getClubId(): UuidInterface
@@ -31,13 +31,13 @@ class ClubAthleteCycleORMEntity
         $this->clubId = $clubId;
     }
 
-    public function getUserId(): UuidInterface
+    public function getAthleteId(): UuidInterface
     {
-        return $this->userId;
+        return $this->athleteId;
     }
 
-    public function setUserId(UuidInterface $userId): void
+    public function setAthleteId(UuidInterface $athleteId): void
     {
-        $this->userId = $userId;
+        $this->athleteId = $athleteId;
     }
 }

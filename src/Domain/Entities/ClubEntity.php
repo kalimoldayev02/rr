@@ -18,6 +18,7 @@ final class ClubEntity
         private string $name,
         private ?string $description = null,
         private array $sportTypes,
+        private ?int $ownerExternalId,
     ) {}
 
     public function getId(): UuidInterface
@@ -53,5 +54,15 @@ final class ClubEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getOwnerExternalId(): int
+    {
+        return $this->ownerExternalId;
+    }
+
+    public function setExternalOwnerId(int $ownerExternalId): void
+    {
+        $this->ownerExternalId = $ownerExternalId;
     }
 }

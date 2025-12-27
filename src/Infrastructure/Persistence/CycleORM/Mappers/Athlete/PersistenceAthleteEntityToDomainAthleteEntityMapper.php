@@ -14,6 +14,7 @@ final readonly class PersistenceAthleteEntityToDomainAthleteEntityMapper
 {
     public function __construct(
         private PersistenceOAuthTokenEntityToDomainOAuthTokenEntityMapper $toDomainOAuthTokenEntityMapper,
+        private PersistenceAthleteClubRoleEntityToAthleteRoleVOMapper $toAthleteRoleVOMapper,
     ) {}
 
     public function map(AthleteCycleORMEntity $persistenceAthleteEntity): AthleteEntity
@@ -41,6 +42,10 @@ final readonly class PersistenceAthleteEntityToDomainAthleteEntityMapper
 
         foreach ($persistenceAthleteEntity->getOAuthTokens() as $oAuthTokenEntity) {
             $domainAthleteEntity->getOAuthTokens()->add($this->toDomainOAuthTokenEntityMapper->map($oAuthTokenEntity));
+        }
+
+        foreach ($persistenceAthleteEntity->getRoles() as $roleEntity) {
+            $domainAthleteEntity->getRoles()->add($this->toAthleteRoleVOMapper->map($roleEntity));
         }
 
         return $domainAthleteEntity;

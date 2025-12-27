@@ -21,7 +21,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class AthleteCycleORMRepository extends Repository implements AthleteRepositoryInterface
 {
-    private const array RELATIONS = ['metadata', 'clubAthletes', 'oAuthTokens'];
+    private const array RELATIONS = ['metadata', 'clubAthletes', 'oAuthTokens', 'roles'];
 
     public function __construct(
         Select $select,

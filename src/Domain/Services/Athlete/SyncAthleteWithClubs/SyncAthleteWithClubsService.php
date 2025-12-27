@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Services\Athlete\SyncAthleteWithClubs;
 
+use App\Application\Enums\Access\RoleEnum;
 use App\Domain\Collections\ClubIdCollection;
 use App\Domain\Criteria\Club\ClubQueryCriteria;
 use App\Domain\Entities\ClubEntity;
@@ -14,6 +15,7 @@ use App\Domain\Repositories\ClubRepositoryInterface;
 use App\Domain\Services\Athlete\GetAthleteClubs\ClubDTO;
 use App\Domain\Services\Athlete\GetAthleteClubs\GetAthleteClubsServiceInterface;
 use App\Domain\Services\Athlete\RefreshAthleteOAuthToken\RefreshAthleteOAuthTokenService;
+use App\Domain\ValueObjects\AthleteRoleVO;
 use App\Domain\ValueObjects\IdVO;
 use Ramsey\Uuid\UuidInterface;
 
@@ -41,9 +43,14 @@ final readonly class SyncAthleteWithClubsService
             if (!$clubCollection->isEmpty()) {
                 $clubEntity = $clubCollection->first();
             } else {
-                // TODO add permissions
                 $clubEntity = $this->createClub($club);
+                $athleteEntity->addRole(new AthleteRoleVO(clubId: $clubEntity->getId(), roleId: RoleEnum::admin));
             }
+            // TODO
+            if ($clubEntity->getOwnerExternalId() === $athleteEntity) {
+                $athleteEntity->addRole(new AthleteRoleVO(clubId: $clubEntity->getId(), roleId: RoleEnum::owner));
+            }
+
             $clubIds[] = $clubEntity->getId();
         }
 
@@ -62,6 +69,7 @@ final readonly class SyncAthleteWithClubsService
             name: $club->name,
             description: $club->description,
             sportTypes: $club->sportTypes,
+            ownerExternalId: $club->ownerExternalId,
         );
         $this->clubRepository->create($clubEntity);
 

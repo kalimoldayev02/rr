@@ -25,10 +25,6 @@ final readonly class EventQueryCriteriaToCycleSelectMapper
                 ->andWhere('results.athlete_id', 'IN', $criteria->athleteIds);
         }
 
-        if ($criteria->authorIds) {
-            $select->andWhere('author_id', 'IN', $criteria->authorIds);
-        }
-
         if ($criteria->fromDate !== null) {
             $select->andWhere('date', '>=', $criteria->fromDate);
         }

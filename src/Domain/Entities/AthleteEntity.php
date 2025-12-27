@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Entities;
 
+use App\Domain\Collections\AthleteRoleCollection;
 use App\Domain\Collections\ClubIdCollection;
 use App\Domain\Collections\OAuthTokenCollection;
 use App\Domain\Enums\User\UserGenderEnum;
+use App\Domain\ValueObjects\AthleteRoleVO;
 use App\Domain\ValueObjects\EmailVO;
 use Ramsey\Uuid\UuidInterface;
 
@@ -14,6 +16,7 @@ final class AthleteEntity
 {
     private ClubIdCollection $clubIds;
     private OAuthTokenCollection $oAuthTokens;
+    private AthleteRoleCollection $roles;
 
     public function __construct(
         private readonly UuidInterface $id,
@@ -29,6 +32,7 @@ final class AthleteEntity
     ) {
         $this->clubIds = new ClubIdCollection();
         $this->oAuthTokens = new OAuthTokenCollection();
+        $this->roles = new AthleteRoleCollection();
     }
 
     public function getId(): UuidInterface
@@ -119,6 +123,21 @@ final class AthleteEntity
     public function setOAuthTokens(OAuthTokenCollection $oAuthTokens): void
     {
         $this->oAuthTokens = $oAuthTokens;
+    }
+
+    public function getRoles(): AthleteRoleCollection
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(AthleteRoleCollection $athleteRoles): void
+    {
+        $this->roles = $athleteRoles;
+    }
+
+    public function addRole(AthleteRoleVO $role): void
+    {
+        $this->roles->add($role);
     }
 
     public function getCreateAt(): ?\DateTimeImmutable

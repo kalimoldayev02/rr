@@ -30,6 +30,7 @@ final readonly class GetAthleteClubsService implements GetAthleteClubsServiceInt
                     sportType: $sportType,
                 ), $club->activity_types),
                 description: $club->description ?? null,
+                ownerExternalId: $club->owner_id,
             ), $responseData);
         } catch (HttpClientProviderException $exception) {
             throw new InfrastructureException($exception->getMessage());

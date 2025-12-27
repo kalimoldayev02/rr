@@ -19,7 +19,6 @@ final readonly class EventQueryCriteria implements EventCriteriaInterface
     public function __construct(
         public ?array $ids = null,
         public ?array $clubIds = null,
-        public ?array $authorIds = null,
         public ?array $athleteIds = null,
         public ?\DateTimeImmutable $fromDate = null,
         public ?\DateTimeImmutable $toDate = null,

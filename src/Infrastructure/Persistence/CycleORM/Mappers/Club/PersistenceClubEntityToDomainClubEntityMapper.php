@@ -23,6 +23,7 @@ final readonly class PersistenceClubEntityToDomainClubEntityMapper
             name: $persistenceClubEntity->getName(),
             description: $persistenceClubEntity->getDescription(),
             sportTypes: $this->collectSportTypes($persistenceClubEntity->getSportTypes()),
+            ownerExternalId: $persistenceClubEntity->getOwnerExternalId(),
         );
     }
 

@@ -6,7 +6,10 @@ namespace App\Infrastructure\Persistence\CycleORM\Mappers\Athlete;
 
 use App\Domain\Entities\AthleteEntity;
 use App\Domain\Entities\OAuthTokenEntity;
+use App\Domain\ValueObjects\AthleteRoleVO;
+use App\Domain\ValueObjects\IdVO;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Entities\AthleteClubRolesCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\AthleteMetadataCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\ClubAthleteCycleORMEntity;
 use App\Infrastructure\Persistence\CycleORM\Entities\OAuthTokenCycleORMEntity;
@@ -31,6 +34,9 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
 
         $persistenceAthleteEntity->setClubAthletes(
             $this->collectClubAthletes($persistenceAthleteEntity, $domainAthleteEntity),
+        );
+        $persistenceAthleteEntity->setRoles(
+            $this->collectRoles($domainAthleteEntity),
         );
         if ($persistenceAthleteEntity->getCreatedAt() === null) {
             $persistenceAthleteEntity->setCreatedAt(new \DateTimeImmutable());
@@ -59,7 +65,7 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
             } else {
                 $clubAthletesToPersist[] = new ClubAthleteCycleORMEntity(
                     clubId: $clubId,
-                    userId: $domainAthleteEntity->getId(),
+                    athleteId: $domainAthleteEntity->getId(),
                 );
             }
         }
@@ -73,7 +79,7 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
             $metaData->setExternalId($domainAthleteEntity->getExternalId());
         } else {
             $metaData = new AthleteMetadataCycleORMEntity(
-                userId: $domainAthleteEntity->getId(),
+                athleteId: $domainAthleteEntity->getId(),
                 externalId: $domainAthleteEntity->getExternalId(),
             );
         }
@@ -110,5 +116,25 @@ final readonly class DomainAthleteEntityToPersistenceAthleteEntityMapper
         }
 
         return $tokensToPersist;
+    }
+
+    /**
+     * @return AthleteClubRolesCycleORMEntity[]
+     */
+    private function collectRoles(AthleteEntity $domainAthleteEntity): array
+    {
+        $rolesToPersist = [];
+
+        /** @var AthleteRoleVO $roleVO */
+        foreach ($domainAthleteEntity->getRoles() as $roleVO) {
+            $rolesToPersist[] = new AthleteClubRolesCycleORMEntity(
+                id: new IdVO()->getValue(),
+                userId: $domainAthleteEntity->getId(),
+                clubId: $roleVO->getClubId(),
+                roleId: $roleVO->getRoleId(),
+            );
+        }
+
+        return $rolesToPersist;
     }
 }

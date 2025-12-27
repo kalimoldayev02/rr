@@ -12,7 +12,6 @@ final class EventAggregate
 {
     public function __construct(
         private UuidInterface $id,
-        private UuidInterface $authorId,
         private UuidInterface $clubId,
         private \DateTimeImmutable $date,
         private string $title,
@@ -27,16 +26,6 @@ final class EventAggregate
     public function setId(UuidInterface $id): void
     {
         $this->id = $id;
-    }
-
-    public function getAuthorId(): UuidInterface
-    {
-        return $this->authorId;
-    }
-
-    public function setAuthorId(UuidInterface $authorId): void
-    {
-        $this->authorId = $authorId;
     }
 
     public function getClubId(): UuidInterface

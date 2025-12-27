@@ -46,6 +46,7 @@ class ClubCycleORMRepository extends Repository implements ClubRepositoryInterfa
                 clubId: $clubEntity->getId(),
                 type: $sportType->name,
             ), $clubEntity->getSportTypes()),
+            ownerExternalId: $clubEntity->getOwnerExternalId(),
         );
 
         $this->entityManager->persist($this->toPersistenceClubEntityMapper->map(

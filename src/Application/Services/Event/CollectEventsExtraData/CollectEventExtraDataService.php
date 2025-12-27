@@ -32,8 +32,6 @@ final readonly class CollectEventExtraDataService
 
         /** @var EventAggregate $eventAggregate */
         foreach ($eventCollection->toArray() as $eventAggregate) {
-            $athleteIdsMap[$eventAggregate->getAuthorId()->toString()] = $eventAggregate->getAuthorId();
-
             /** @var EventResultEntity $eventResultEntity */
             foreach ($eventAggregate->getResult() as $eventResultEntity) {
                 $athleteIdsMap[$eventResultEntity->getAthleteId()->toString()] = $eventResultEntity->getAthleteId();

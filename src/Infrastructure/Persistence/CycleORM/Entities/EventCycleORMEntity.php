@@ -13,7 +13,6 @@ use Ramsey\Uuid\UuidInterface;
 
 #[Entity(repository: EventCycleORMRepository::class, table: 'events')]
 #[Uuid7(field: 'id', nullable: false)]
-#[Uuid7(field: 'authorId', nullable: false)]
 #[Uuid7(field: 'clubId', nullable: false)]
 class EventCycleORMEntity
 {
@@ -29,8 +28,6 @@ class EventCycleORMEntity
     public function __construct(
         #[Column(type: 'uuid', primary: true)]
         private UuidInterface $id,
-        #[Column(type: 'uuid', name: 'author_id')]
-        private UuidInterface $authorId,
         #[Column(type: 'uuid', name: 'club_id')]
         private UuidInterface $clubId,
         #[Column(type: 'datetime')]
@@ -47,16 +44,6 @@ class EventCycleORMEntity
     public function setId(UuidInterface $id): void
     {
         $this->id = $id;
-    }
-
-    public function getAuthorId(): UuidInterface
-    {
-        return $this->authorId;
-    }
-
-    public function setAuthorId(UuidInterface $authorId): void
-    {
-        $this->authorId = $authorId;
     }
 
     public function getClubId(): UuidInterface

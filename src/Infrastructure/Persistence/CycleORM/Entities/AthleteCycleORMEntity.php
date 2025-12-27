@@ -34,6 +34,15 @@ class AthleteCycleORMEntity
     )]
     private array $oAuthTokens = [];
 
+    #[HasMany(
+        target: AthleteClubRolesCycleORMEntity::class,
+        innerKey: 'id',
+        outerKey: 'user_id',
+        fkOnDelete: 'CASCADE',
+        load: 'eager',
+    )]
+    private array $roles = [];
+
     public function __construct(
         #[Column(type: 'uuid', name: 'id', primary: true)]
         private UuidInterface $id,
@@ -181,5 +190,18 @@ class AthleteCycleORMEntity
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * @return AthleteClubRolesCycleORMEntity[]
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
 }

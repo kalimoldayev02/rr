@@ -16,6 +16,7 @@ final readonly class DomainClubEntityToPersistenceClubEntityMapper
         $persistenceClubEntity->setName($domainClubEntity->getName());
         $persistenceClubEntity->setDescription($domainClubEntity->getDescription());
         $persistenceClubEntity->setExternalId($domainClubEntity->getExternalId());
+        $persistenceClubEntity->setOwnerExternalId($domainClubEntity->getOwnerExternalId());
         $persistenceClubEntity->setSportTypes($this->mapDomainClubSportTypesToPersistenceClubSportTypes(
             persistenceClubEntity: $persistenceClubEntity,
             domainClubEntity: $domainClubEntity,

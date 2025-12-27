@@ -19,7 +19,6 @@ final readonly class EventAggregateToEventDTOMapper
     {
         return new EventDTO(
             id: $eventAggregate->getId(),
-            author: $extraData->athletesDataMap[$eventAggregate->getAuthorId()->toString()],
             clubId: $eventAggregate->getClubId(),
             date: $eventAggregate->getDate(),
             title: $eventAggregate->getTitle(),

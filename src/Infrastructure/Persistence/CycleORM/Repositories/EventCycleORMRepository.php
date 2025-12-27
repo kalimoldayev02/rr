@@ -37,7 +37,6 @@ class EventCycleORMRepository extends Repository implements EventRepositoryInter
     {
         $persistenceEventEntity = new EventCycleORMEntity(
             id: $eventAggregate->getId(),
-            authorId: $eventAggregate->getAuthorId(),
             clubId: $eventAggregate->getClubId(),
             date: $eventAggregate->getDate(),
             title: $eventAggregate->getTitle(),

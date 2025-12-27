@@ -10,24 +10,24 @@ use Cycle\ORM\Entity\Behavior\Uuid\Uuid7;
 use Ramsey\Uuid\UuidInterface;
 
 #[Entity(table: 'athlete_metadata')]
-#[Uuid7(field: 'userId', nullable: false)]
+#[Uuid7(field: 'athleteId', nullable: false)]
 class AthleteMetadataCycleORMEntity
 {
     public function __construct(
         #[Column(type: 'uuid', name: 'user_id', primary: true)]
-        private UuidInterface $userId,
+        private UuidInterface $athleteId,
         #[Column(type: 'bigInteger', name: 'external_id')]
         private int $externalId,
     ) {}
 
-    public function getUserId(): UuidInterface
+    public function getAthleteId(): UuidInterface
     {
-        return $this->userId;
+        return $this->athleteId;
     }
 
-    public function setUserId(UuidInterface $userId): void
+    public function setAthleteId(UuidInterface $athleteId): void
     {
-        $this->userId = $userId;
+        $this->athleteId = $athleteId;
     }
 
     public function getExternalId(): int

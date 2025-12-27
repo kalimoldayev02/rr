@@ -16,5 +16,6 @@ final readonly class ClubDTO
         public string $name,
         public array $sportTypes,
         public ?string $description,
+        public int $ownerExternalId,
     ) {}
 }
