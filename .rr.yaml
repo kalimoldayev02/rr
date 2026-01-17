@@ -1,30 +1,48 @@
 version: '3'
+
 rpc:
-    listen: 'tcp://127.0.0.1:6001'
+  listen: 'tcp://127.0.0.1:6001'
+
 http:
-    address: '0.0.0.0:8080'
-    middleware:
-        - gzip
-        - static
-    static:
-        dir: public
-        forbid:
-            - .php
-            - .htaccess
-    pool:
-        num_workers: 1
-        supervisor:
-            max_worker_memory: 100
+  address: 0.0.0.0:80
+  middleware: [ "gzip", "headers", "http_metrics" ]
+  access_logs: false
+  pool:
+    num_workers: 1
+    supervisor:
+      watch_tick: 5s
+      max_worker_memory: 100
+
+status:
+  address: 0.0.0.0:2114
+
 server:
-    command: 'php app.php'
-    relay: pipes
-jobs:
-    pool:
-        num_workers: 2
-        max_worker_memory: 100
-    consume: {  }
-kv:
-    local:
-        driver: memory
-        config:
-            interval: 60
+  command: 'php app.php'
+  relay: pipes
+
+logs:
+  mode: "raw"
+  channels:
+    jobs:
+      mode: none
+    service:
+      mode: none
+    http:
+      mode: none
+    server:
+      level: info
+      mode: raw
+    metrics:
+      mode: none
+
+metrics:
+  address: 0.0.0.0:2112
+  collect:
+    http_requests_total:
+      type: counter
+      help: "Total number of HTTP requests"
+      labels: [ "route", "method" ]
+    http_response_status_total:
+      type: counter
+      help: "HTTP response status codes"
+      labels: [ "route", "method", "status" ]
