@@ -1,0 +1,104 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Infrastructure\Persistence\CycleORM\Repositories;
+
+use App\Domain\Collections\ClubCollection;
+use App\Domain\Criteria\Club\ClubCriteriaInterface;
+use App\Domain\Entities\ClubEntity;
+use App\Domain\Enums\SportTypeEnum;
+use App\Domain\Exceptions\Club\ClubNotFoundException;
+use App\Domain\Repositories\ClubRepositoryInterface;
+use App\Domain\ValueObjects\PaginationVO;
+use App\Infrastructure\Mappers\Club\ClubCriteriaMapperInterface;
+use App\Infrastructure\Persistence\CycleORM\Entities\ClubCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Entities\ClubSportTypeCycleORMEntity;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Club\DomainClubEntityToPersistenceClubEntityMapper;
+use App\Infrastructure\Persistence\CycleORM\Mappers\Club\PersistenceClubEntityToDomainClubEntityMapper;
+use Cycle\ORM\EntityManagerInterface;
+use Cycle\ORM\Select;
+use Cycle\ORM\Select\Repository;
+use Ramsey\Uuid\UuidInterface;
+
+class ClubCycleORMRepository extends Repository implements ClubRepositoryInterface
+{
+    private const array RELATIONS = ['sportTypes'];
+
+    public function __construct(
+        Select $select,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ClubCriteriaMapperInterface $criteriaMapper,
+        private readonly PersistenceClubEntityToDomainClubEntityMapper $toDomainClubEntityMapper,
+        private readonly DomainClubEntityToPersistenceClubEntityMapper $toPersistenceClubEntityMapper,
+    ) {
+        parent::__construct($select);
+    }
+
+    public function create(ClubEntity $clubEntity): void
+    {
+        $persistenceClubEntity = new ClubCycleORMEntity(
+            id: $clubEntity->getId(),
+            externalId: $clubEntity->getExternalId(),
+            name: $clubEntity->getName(),
+            description: $clubEntity->getDescription(),
+            sportTypes: \array_map(static fn(SportTypeEnum $sportType) => new ClubSportTypeCycleORMEntity(
+                clubId: $clubEntity->getId(),
+                type: $sportType->name,
+            ), $clubEntity->getSportTypes()),
+            ownerExternalId: $clubEntity->getOwnerExternalId(),
+        );
+
+        $this->entityManager->persist($this->toPersistenceClubEntityMapper->map(
+            persistenceClubEntity: $persistenceClubEntity,
+            domainClubEntity: $clubEntity,
+        ));
+        $this->entityManager->run();
+    }
+
+    public function update(ClubEntity $clubEntity): void
+    {
+        $this->entityManager->persist($this->toPersistenceClubEntityMapper->map(
+            persistenceClubEntity: $this->get($clubEntity->getId()),
+            domainClubEntity: $clubEntity,
+        ));
+        $this->entityManager->run();
+    }
+
+    public function getById(UuidInterface $id): ClubEntity
+    {
+        return $this->toDomainClubEntityMapper->map($this->get($id));
+    }
+
+    public function getByCriteria(ClubCriteriaInterface $criteria): ClubCollection
+    {
+        $select = $this->criteriaMapper->getSelect($criteria, $this->select()->load(self::RELATIONS));
+
+        $totalCountQuery = clone $select;
+        if ($criteria->pagination) {
+            $offset = ($criteria->pagination->page - 1) * $criteria->pagination->pageSize;
+            $select->limit($criteria->pagination->pageSize)->offset($offset);
+        }
+
+        $data = $select->fetchAll();
+
+        return new ClubCollection(
+            data: \array_map(fn(ClubCycleORMEntity $clubEntity) => $this->toDomainClubEntityMapper->map(
+                persistenceClubEntity: $clubEntity,
+            ), $data),
+            pagination: new PaginationVO(
+                page: $criteria->pagination?->page ?? 1,
+                pageSize: $criteria->pagination?->pageSize ?? \count($data),
+                totalCount: $totalCountQuery->count(),
+            ),
+        );
+    }
+
+    private function get(UuidInterface $id): object
+    {
+        if (!$data = $this->select()->wherePK($id)->load(self::RELATIONS)) {
+            throw new ClubNotFoundException();
+        }
+        return $data;
+    }
+}
