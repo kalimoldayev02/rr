@@ -12,14 +12,14 @@ use Ramsey\Uuid\Uuid;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Delete(path: '/api/references/distances/{distanceReferenceId}', tags: ['Distance References'])]
+#[OA\Delete(path: '/references/distances/{distanceReferenceId}', tags: ['Distance References'])]
 #[OA\Parameter(name: 'distanceReferenceId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[ROA\SuccessfulResponse]
 #[ROA\NotFoundResponse]
 #[ROA\UnauthorizedResponse]
 final readonly class DeleteDistanceReferenceAction
 {
-    #[Route(route: '/api/references/distances/<distanceReferenceId:uuid>', name: 'references.distances.delete', methods: ['DELETE'], group: 'auth_api')]
+    #[Route(route: '/references/distances/<distanceReferenceId:uuid>', name: 'references.distances.delete', methods: ['DELETE'], group: 'auth_api')]
     public function __invoke(
         string $distanceReferenceId,
         UserContext $userContext,

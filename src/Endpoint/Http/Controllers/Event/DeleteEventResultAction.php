@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Delete(path: '/api/events/{eventId}/results/{eventResultId}', tags: ['Event Results'])]
+#[OA\Delete(path: '/events/{eventId}/results/{eventResultId}', tags: ['Event Results'])]
 #[OA\Parameter(name: 'eventId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[OA\Parameter(name: 'eventResultId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[ROA\SuccessfulResponse]
@@ -20,7 +20,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\UnauthorizedResponse]
 final readonly class DeleteEventResultAction
 {
-    #[Route(route: '/api/events/<eventId:uuid>/results/<eventResultId:uuid>', name: 'events.results.delete', methods: ['DELETE'], group: 'auth_api')]
+    #[Route(route: '/events/<eventId:uuid>/results/<eventResultId:uuid>', name: 'events.results.delete', methods: ['DELETE'], group: 'auth_api')]
     public function __invoke(
         string $eventId,
         string $eventResultId,

@@ -14,7 +14,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Get(path: '/api/events/{eventId}', tags: ['Events'])]
+#[OA\Get(path: '/events/{eventId}', tags: ['Events'])]
 #[OA\PathParameter(name: 'eventId', schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[ROA\SuccessfulResponse(content: new OA\JsonContent(ref: DetailEventResponse::class))]
 #[ROA\NotFoundResponse]
@@ -22,7 +22,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class GetEventByIdAction
 {
-    #[Route(route: '/api/events/<eventId:uuid>', name: 'events.get', methods: ['GET'], group: 'auth_api')]
+    #[Route(route: '/events/<eventId:uuid>', name: 'events.get', methods: ['GET'], group: 'auth_api')]
     public function __invoke(
         string $eventId,
         UserContext $userContext,

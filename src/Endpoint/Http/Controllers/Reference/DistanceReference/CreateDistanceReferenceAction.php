@@ -12,14 +12,14 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Post(path: '/api/references/distances', tags: ['Distance References'])]
+#[OA\Post(path: '/references/distances', tags: ['Distance References'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: CreateDistanceReferenceRequest::class))]
 #[ROA\SuccessfulResponse]
 #[ROA\UnauthorizedResponse]
 #[ROA\ValidationErrorResponse]
 final readonly class CreateDistanceReferenceAction
 {
-    #[Route(route: '/api/references/distances', name: 'references.distances.create', methods: ['POST'], group: 'auth_api')]
+    #[Route(route: '/references/distances', name: 'references.distances.create', methods: ['POST'], group: 'auth_api')]
     public function __invoke(
         UserContext $userContext,
         CreateDistanceReferenceRequest $request,

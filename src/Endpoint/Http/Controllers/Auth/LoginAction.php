@@ -13,7 +13,7 @@ use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 use App\Endpoint\Http\Responses\Token\TokenResponse;
 
-#[OA\Post(path: '/api/auth/login', tags: ['Auth'])]
+#[OA\Post(path: '/auth/login', tags: ['Auth'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: LoginRequest::class))]
 #[ROA\SuccessfulResponse(content: new OA\JsonContent(ref: TokenResponse::class))]
 #[ROA\NotFoundResponse]
@@ -21,7 +21,7 @@ use App\Endpoint\Http\Responses\Token\TokenResponse;
 #[ROA\ValidationErrorResponse]
 final readonly class LoginAction
 {
-    #[Route(route: '/api/auth/login', name: 'auth.login', methods: ['POST'], group: 'api')]
+    #[Route(route: '/auth/login', name: 'auth.login', methods: ['POST'], group: 'api')]
     public function __invoke(
         LoginRequest $request,
         LoginCommandHandler $handler,

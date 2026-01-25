@@ -22,14 +22,14 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Get(path: '/api/activities', tags: ['Activities'])]
+#[OA\Get(path: '/activities', tags: ['Activities'])]
 #[ROA\PaginatedResponse(itemsRef: ActivityResponse::class, itemsProperty: 'data')]
 #[ROA\NotFoundResponse]
 #[ROA\UnauthorizedResponse]
 #[ROA\ValidationErrorResponse]
 final readonly class GetActivitiesAction
 {
-    #[Route(route: '/api/activities', name: 'athlete.activities.list', methods: ['GET'], group: 'auth_api')]
+    #[Route(route: '/activities', name: 'athlete.activities.list', methods: ['GET'], group: 'auth_api')]
     public function __invoke(
         UserContext $userContext,
         GetActivitiesRequest $request,

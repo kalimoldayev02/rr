@@ -13,7 +13,7 @@ use Ramsey\Uuid\Uuid;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Put(path: '/api/events/{eventId}/results/{eventResultId}', tags: ['Event Results'])]
+#[OA\Put(path: '/events/{eventId}/results/{eventResultId}', tags: ['Event Results'])]
 #[OA\Parameter(name: 'eventId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[OA\Parameter(name: 'eventResultId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[OA\RequestBody(content: new OA\JsonContent(ref: UpdateEventResultRequest::class))]
@@ -23,7 +23,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class UpdateEventResultAction
 {
-    #[Route(route: '/api/events/<eventId:uuid>/results/<eventResultId:uuid>', name: 'events.results.update', methods: ['PUT'], group: 'auth_api')]
+    #[Route(route: '/events/<eventId:uuid>/results/<eventResultId:uuid>', name: 'events.results.update', methods: ['PUT'], group: 'auth_api')]
     public function __invoke(
         string $eventId,
         string $eventResultId,

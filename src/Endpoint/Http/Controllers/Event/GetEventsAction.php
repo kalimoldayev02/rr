@@ -21,7 +21,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Get(path: '/api/events', tags: ['Events'])]
+#[OA\Get(path: '/events', tags: ['Events'])]
 #[OA\Parameter(name: 'ids', in: 'query', required: false, schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uuid')))]
 #[OA\Parameter(name: 'clubIds', in: 'query', required: false, schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uuid')))]
 #[OA\Parameter(name: 'athleteIds', in: 'query', required: false, schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uuid')))]
@@ -36,7 +36,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class GetEventsAction
 {
-    #[Route(route: '/api/events', name: 'events.list', methods: ['GET'], group: 'auth_api')]
+    #[Route(route: '/events', name: 'events.list', methods: ['GET'], group: 'auth_api')]
     public function __invoke(
         GetEventsRequest $request,
         SortRequestToSortQueryMapper $toSortQueryMapper,

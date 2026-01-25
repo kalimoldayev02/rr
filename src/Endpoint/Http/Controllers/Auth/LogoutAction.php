@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Post(path: '/api/auth/logout', tags: ['Auth'])]
+#[OA\Post(path: '/auth/logout', tags: ['Auth'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: LogoutRequest::class))]
 #[ROA\SuccessfulResponse]
 #[ROA\NotFoundResponse]
@@ -19,7 +19,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class LogoutAction
 {
-    #[Route(route: '/api/auth/logout', name: 'auth.logout', methods: ['POST'], group: 'auth_api')]
+    #[Route(route: '/auth/logout', name: 'auth.logout', methods: ['POST'], group: 'auth_api')]
     public function __invoke(
         LogoutRequest $request,
         LogoutCommandHandler $handler,

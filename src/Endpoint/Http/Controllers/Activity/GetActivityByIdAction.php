@@ -14,7 +14,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Get(path: '/api/activities/{activityId}', tags: ['Activities'])]
+#[OA\Get(path: '/activities/{activityId}', tags: ['Activities'])]
 #[OA\PathParameter(name: 'activityId', schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[ROA\SuccessfulResponse(content: new OA\JsonContent(ref: ActivityDetailResponse::class))]
 #[ROA\NotFoundResponse]
@@ -22,7 +22,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class GetActivityByIdAction
 {
-    #[Route(route: '/api/activities/<activityId:uuid>', name: 'athlete.activities.get', methods: ['GET'], group: 'auth_api')]
+    #[Route(route: '/activities/<activityId:uuid>', name: 'athlete.activities.get', methods: ['GET'], group: 'auth_api')]
     public function __invoke(
         UserContext $userContext,
         string $activityId,

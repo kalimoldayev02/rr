@@ -13,7 +13,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Post(path: '/api/auth/refresh', tags: ['Auth'])]
+#[OA\Post(path: '/auth/refresh', tags: ['Auth'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: RefreshRequest::class))]
 #[ROA\SuccessfulResponse]
 #[ROA\NotFoundResponse]
@@ -21,7 +21,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class RefreshAction
 {
-    #[Route(route: '/api/auth/refresh', name: 'auth.refresh', methods: ['POST'], group: 'api')]
+    #[Route(route: '/auth/refresh', name: 'auth.refresh', methods: ['POST'], group: 'api')]
     public function __invoke(
         RefreshRequest $request,
         RefreshCommandHandler $handler,

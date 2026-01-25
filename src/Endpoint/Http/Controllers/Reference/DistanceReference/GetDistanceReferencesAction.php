@@ -21,7 +21,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Get(path: '/api/references/distances', tags: ['Distance References'])]
+#[OA\Get(path: '/references/distances', tags: ['Distance References'])]
 #[OA\Parameter(name: 'ids', in: 'query', required: false, schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uuid')))]
 #[OA\Parameter(name: 'fromDistance', in: 'query', required: false, schema: new OA\Schema(type: 'number'))]
 #[OA\Parameter(name: 'toDistance', in: 'query', required: false, schema: new OA\Schema(type: 'number'))]
@@ -34,7 +34,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class GetDistanceReferencesAction
 {
-    #[Route(route: '/api/references/distances', name: 'references.distances.index', methods: ['GET'], group: 'auth_api')]
+    #[Route(route: '/references/distances', name: 'references.distances.index', methods: ['GET'], group: 'auth_api')]
     public function __invoke(
         GetDistanceReferencesRequest $request,
         SortRequestToSortQueryMapper $toSortQueryMapper,

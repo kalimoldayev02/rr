@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Post(path: '/api/events', tags: ['Events'])]
+#[OA\Post(path: '/events', tags: ['Events'])]
 #[OA\RequestBody(content: new OA\JsonContent(ref: CreateEventRequest::class))]
 #[ROA\SuccessfulResponse]
 #[ROA\NotFoundResponse]
@@ -20,7 +20,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class CreateEventAction
 {
-    #[Route(route: '/api/events', name: 'events.create', methods: ['POST'], group: 'auth_api')]
+    #[Route(route: '/events', name: 'events.create', methods: ['POST'], group: 'auth_api')]
     public function __invoke(
         UserContext $userContext,
         CreateEventRequest $request,

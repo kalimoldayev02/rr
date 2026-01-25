@@ -13,7 +13,7 @@ use Ramsey\Uuid\Uuid;
 use RR\OpenApi as ROA;
 use Spiral\Router\Annotation\Route;
 
-#[OA\Put(path: '/api/references/distances/{distanceReferenceId}', tags: ['Distance References'])]
+#[OA\Put(path: '/references/distances/{distanceReferenceId}', tags: ['Distance References'])]
 #[OA\Parameter(name: 'distanceReferenceId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
 #[OA\RequestBody(content: new OA\JsonContent(ref: UpdateDistanceReferenceRequest::class))]
 #[ROA\SuccessfulResponse]
@@ -22,7 +22,7 @@ use Spiral\Router\Annotation\Route;
 #[ROA\ValidationErrorResponse]
 final readonly class UpdateDistanceReferenceAction
 {
-    #[Route(route: '/api/references/distances/<distanceReferenceId:uuid>', name: 'references.distances.update', methods: ['PUT'], group: 'auth_api')]
+    #[Route(route: '/references/distances/<distanceReferenceId:uuid>', name: 'references.distances.update', methods: ['PUT'], group: 'auth_api')]
     public function __invoke(
         string $distanceReferenceId,
         UserContext $userContext,
